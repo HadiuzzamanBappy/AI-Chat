@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Main Interface Colors */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    
+    /* Chat Interface */
+    --chat-background: 0 0% 98%;
+    --chat-user-bubble: 212 100% 48%;
+    --chat-user-bubble-foreground: 0 0% 100%;
+    --chat-assistant-bubble: 0 0% 95%;
+    --chat-assistant-bubble-foreground: 212 20% 14%;
+    
+    /* Sidebar */
+    --sidebar-background: 0 0% 96%;
+    --sidebar-foreground: 212 20% 20%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-hover: 0 0% 92%;
+    --sidebar-active: 212 100% 48%;
+    --sidebar-active-foreground: 0 0% 100%;
+    
+    /* Interactive Elements */
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 212 100% 42%;
+    
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --secondary-hover: 0 0% 92%;
+    
+    /* Form Elements */
+    --input: 0 0% 89.8%;
+    --input-border: 0 0% 88%;
+    --input-border-focus: 212 100% 48%;
+    
+    /* Utility Colors */
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    
+    /* Animations */
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.15s ease-out;
+    
+    --radius: 0.5rem;
+    
+    --card: 0 0% 100%;
+    
+    --card-foreground: 0 0% 3.9%;
+    
+    --popover: 0 0% 100%;
+    
+    --popover-foreground: 0 0% 3.9%;
+    
+    --chart-1: 12 76% 61%;
+    
+    --chart-2: 173 58% 39%;
+    
+    --chart-3: 197 37% 24%;
+    
+    --chart-4: 43 74% 66%;
+    
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    /* Main Interface Colors - Dark */
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    
+    /* Chat Interface - Dark */
+    --chat-background: 212 25% 10%;
+    --chat-user-bubble: 212 100% 48%;
+    --chat-user-bubble-foreground: 0 0% 100%;
+    --chat-assistant-bubble: 212 20% 15%;
+    --chat-assistant-bubble-foreground: 210 40% 92%;
+    
+    /* Sidebar - Dark */
+    --sidebar-background: 212 25% 6%;
+    --sidebar-foreground: 210 40% 75%;
+    --sidebar-border: 212 20% 18%;
+    --sidebar-hover: 212 20% 12%;
+    --sidebar-active: 212 100% 48%;
+    --sidebar-active-foreground: 0 0% 100%;
+    
+    /* Interactive Elements - Dark */
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --primary-hover: 212 100% 54%;
+    
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --secondary-hover: 212 20% 18%;
+    
+    /* Form Elements - Dark */
+    --input: 0 0% 14.9%;
+    --input-border: 212 20% 18%;
+    --input-border-focus: 212 100% 48%;
+    
+    /* Utility Colors - Dark */
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    transition: var(--transition-smooth);
+  }
+  
+  /* Scrollbar Styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@layer components {
+  /* Chat Bubble Animations */
+  .message-fade-in {
+    animation: fadeInUp 0.3s ease-out;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Typing Animation */
+  .typing-dots {
+    animation: typing 1.4s infinite;
+  }
+  
+  @keyframes typing {
+    0%, 60%, 100% { opacity: 0.4; }
+    30% { opacity: 1; }
+  }
+  
+  /* Smooth Focus Styles */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
