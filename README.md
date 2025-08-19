@@ -6,7 +6,7 @@
 
 A full frontend codebase for a ChatGPT-like AI website using **React + Next.js + Tailwind CSS**. The backend will be integrated later, so use placeholder functions or mock APIs where needed.
 
-▶️ **[View the Live Vercel](https://hadiuzzamanbappy.vercel.app/)**  
+▶️ **[View the Live Vercel](https://ai-chat-bro.vercel.app/)**  
 
 ![Preview](/public/images/image.png)
 
