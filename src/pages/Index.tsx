@@ -74,6 +74,7 @@ const Index = () => {
       }
     }
     setIsAppLoaded(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -248,17 +249,15 @@ const Index = () => {
     console.log(`Sending to ${provider.name} with model ${apiModelId}:`, apiMessages);
 
     try {
-      const response = await fetch(provider.apiUrl, {
+      const response = await fetch('/api/chat', { // Call your own API endpoint
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "HTTP-Referer": `${window.location.host}`,
-          "X-Title": "AI Chat",
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: apiModelId,
-          messages: apiMessages,
+          messages: apiMessages, // The message history
+          providerId: provider.id, // Tell the server which provider to use
+          modelId: apiModelId, // Tell the server which model to use
         }),
       });
 
