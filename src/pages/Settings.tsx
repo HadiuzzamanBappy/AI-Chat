@@ -26,7 +26,7 @@ export default function Settings() {
   const [openAIKey, setOpenAIKey] = useState('');
   const [feedDefaultKb, setFeedDefaultKb] = useState(() => {
     const saved = localStorage.getItem('feed_default_kb');
-    return saved === null ? true : JSON.parse(saved);
+    return saved === null ? false : JSON.parse(saved);
   });
 
   useEffect(() => {

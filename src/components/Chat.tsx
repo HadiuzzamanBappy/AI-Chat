@@ -68,7 +68,7 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
           <StarterTemplates starters={starterTemplates} onSelectStarter={onSendMessage} />
         ) : (
           <motion.div
-            className="max-w-4xl mx-auto px-4"
+            className="max-w-4xl mx-auto px-md-4"
           >
             {messages.map((message) => <Message key={message.id} {...message} onDelete={onDeleteMessage} />)}
             {isTyping && <TypingIndicator />}

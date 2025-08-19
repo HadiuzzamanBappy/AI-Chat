@@ -95,7 +95,7 @@ export function Message({ id, content, isUser, timestamp, isTyping = false, onDe
 
       <div className="relative max-w-[70%]">
         <div
-          className={`rounded-2xl px-4 py-3 ${isUser
+          className={`rounded-2xl px-3 py-2 ${isUser
             ? 'bg-chat-user-bubble text-chat-user-bubble-foreground'
             : 'bg-chat-assistant-bubble text-chat-assistant-bubble-foreground'
             }`}
