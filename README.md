@@ -1,6 +1,14 @@
 
 ## Project info
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Vite](https://img.shields.io/badge/vite-%5E4.0.0-brightgreen)](https://vitejs.dev/)
+[![React](https://img.shields.io/badge/react-%5E18.2.0-blue)](https://react.dev/)
+
 A full frontend codebase for a ChatGPT-like AI website using **React + Next.js + Tailwind CSS**. The backend will be integrated later, so use placeholder functions or mock APIs where needed.
+
+▶️ **[View the Live Vercel](https://hadiuzzamanbappy.vercel.app/)**  
+
+![Preview](/public/images/image.png)
 
 
 ## How can I edit this code?
@@ -52,3 +60,9 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+
+## ✅ Next Steps
+
+- Add authentication (JWT, OAuth)
+- Add database (PostgreSQL, MongoDB, or MySQL)
+- Optimize performance with caching & pagination
