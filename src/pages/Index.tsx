@@ -74,7 +74,6 @@ const Index = () => {
       }
     }
     setIsAppLoaded(true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -167,7 +166,6 @@ const Index = () => {
       timestamp: new Date()
     };
 
-    // This optimistic update is correct and remains unchanged.
     const updatedConversations = conversations.map(conv =>
       conv.id === activeConversationId
         ? {
@@ -185,12 +183,8 @@ const Index = () => {
     setConversations(updatedConversations);
     setIsTyping(true);
 
-    // --- FIX #1: Use the 'selectedModel' from state, not the old model from the conversation object. ---
-    // This ensures the model you picked in the dropdown is the one that gets used.
-    let finalModelId = selectedModel;
-
-    // The "Auto" selection logic correctly uses the newly determined model ID.
-    if (selectedModel === 'openrouter/auto') {
+    let finalModelId = activeConversation.modelId;
+    if (activeConversation.modelId === 'openrouter/auto') {
       finalModelId = selectBestModel(combinedContent);
     }
 
@@ -200,6 +194,7 @@ const Index = () => {
 
     if (!model || !provider) {
       console.error("Active conversation is missing a valid model or provider.");
+      // Add an error message to the chat for the user
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         content: "Error: Could not find a valid model or provider for this conversation.",
@@ -211,9 +206,10 @@ const Index = () => {
       return;
     }
 
-    // API Key logic is correct and remains unchanged.
     const apiKey = localStorage.getItem(provider.apiKeyEnvVar) || import.meta.env[provider.apiKeyEnvVar];
+
     if (!apiKey) {
+      // Add an error message to the chat for the user
       const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         content: `API Key for ${provider.name} is not configured. Please add it to your settings.`,
@@ -225,13 +221,18 @@ const Index = () => {
       return;
     }
 
-    // The API model ID formatting is correct and remains unchanged.
+    // --- FIX STARTS HERE: This is the critical change ---
+    // Prepare the model ID specifically for the API call.
     let apiModelId = finalModelId;
+
+    // If the provider is NOT OpenRouter (e.g., it's 'openai'), we must strip the prefix
+    // from the model ID. For example, "openai/gpt-4o" becomes "gpt-4o".
     if (provider.id !== 'openrouter' && apiModelId.includes('/')) {
       apiModelId = apiModelId.split('/')[1];
     }
+    // --- FIX ENDS HERE ---
 
-    // Knowledgebase and message preparation logic is correct and remains unchanged.
+    // --- Knowledgebase Logic ---
     let knowledgebaseContent = localStorage.getItem('user_knowledgebase');
     if (!knowledgebaseContent) {
       const feedDefaultSetting = localStorage.getItem('feed_default_kb');
@@ -241,23 +242,29 @@ const Index = () => {
     }
     const systemPromptContent = [agent.systemPrompt, knowledgebaseContent].filter(Boolean).join('\n\n');
     const systemMessage = { role: 'system', content: systemPromptContent };
+
+    // --- Message Preparation ---
     const userAndAssistantMessages = updatedConversations
       .find(c => c.id === activeConversationId)
       ?.messages.map(msg => ({ role: msg.isUser ? "user" : "assistant", content: msg.content })) || [];
+
     const apiMessages = [systemMessage, ...userAndAssistantMessages];
 
     console.log(`Sending to ${provider.name} with model ${apiModelId}:`, apiMessages);
 
     try {
-      const response = await fetch('/api/chat', { // Call your own API endpoint
+      const response = await fetch(provider.apiUrl, {
         method: "POST",
         headers: {
+          "Authorization": `Bearer ${apiKey}`,
+          "HTTP-Referer": `${window.location.host}`,
+          "X-Title": "AI Chat",
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          messages: apiMessages, // The message history
-          providerId: provider.id, // Tell the server which provider to use
-          modelId: apiModelId, // Tell the server which model to use
+          // Use the CORRECTED model ID here
+          model: apiModelId,
+          messages: apiMessages,
         }),
       });
 
@@ -286,10 +293,7 @@ const Index = () => {
                 ...conv,
                 messages: [...conv.messages, aiMessage],
                 lastMessage: aiContent.slice(0, 50) + (aiContent.length > 50 ? '...' : ''),
-                timestamp: new Date(),
-                // --- FIX #2: Save the model that was just used to the conversation history. ---
-                // This ensures the correct model is remembered for the next message and when you reload.
-                modelId: selectedModel,
+                timestamp: new Date()
               }
               : conv
           )
