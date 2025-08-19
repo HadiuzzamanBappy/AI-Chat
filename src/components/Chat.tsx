@@ -53,7 +53,7 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
 
   return (
     <div className="relative flex-1 bg-chat-background">
-      <div className="absolute inset-0 overflow-y-auto pb-24 pt-4"> {/* Add padding for floating input */}
+      <div className="absolute inset-0 overflow-y-auto pb-14 pt-4"> {/* Add padding for floating input */}
         
         {/* Minimalist Header */}
         <div className="text-center mb-8">

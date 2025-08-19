@@ -1,5 +1,6 @@
 
 ## Project info
+
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Vite](https://img.shields.io/badge/vite-%5E4.0.0-brightgreen)](https://vitejs.dev/)
 [![React](https://img.shields.io/badge/react-%5E18.2.0-blue)](https://react.dev/)
@@ -9,7 +10,6 @@ A full frontend codebase for a ChatGPT-like AI website using **React + Next.js +
 ▶️ **[View the Live Vercel](https://ai-chat-bro.vercel.app/)**  
 
 ![Preview](/public/images/image.png)
-
 
 ## How can I edit this code?
 
