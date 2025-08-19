@@ -78,7 +78,7 @@ export function ModelSelector({
       onValueChange={onModelChange}
       disabled={disabled}
     >
-      <SelectTrigger className="w-auto min-w-72 h-auto  flex items-center gap-3 bg-transparent border-0 shadow-none focus:ring-0 focus:ring-offset-0 p-2 border hover:bg-secondary transition-colors rounded-lg">
+      <SelectTrigger className="w-auto min-w-72 h-auto  flex items-center gap-3 bg-transparent shadow-none focus:ring-0 focus:ring-offset-0 p-2 border hover:bg-secondary transition-colors rounded-lg">
         {/* UPDATED: Informative Trigger with two-line layout */}
         <div className="flex items-center gap-3 text-left">
           <Cpu size={16} className="text-muted-foreground" /> 
