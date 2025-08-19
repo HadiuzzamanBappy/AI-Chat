@@ -1,109 +1,81 @@
 import { useEffect, useRef } from "react";
 import { Message } from "./Message";
 import { motion } from "framer-motion";
-
-interface ChatMessage {
-  id: string;
-  content: string;
-  isUser: boolean;
-  timestamp: Date;
-  isTyping?: boolean;
-}
+import { starterTemplates } from '@/lib/starters';
+import { StarterTemplates } from './StarterTemplates';
+import { Bot } from "lucide-react";
+import { type Conversation, type ChatMessage } from "@/lib/types";
+import { AGENTS } from "@/lib/agents";
 
 interface ChatProps {
   messages: ChatMessage[];
   isTyping?: boolean;
+  onSendMessage: (message: string) => void;
+  onDeleteMessage: (messageId: string) => void;
+  activeConversation: Conversation | undefined;
 }
 
-export function Chat({ messages, isTyping = false }: ChatProps) {
+export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessage, activeConversation }: ChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
+  
+  const activeAgent = AGENTS.find(agent => agent.id === activeConversation?.agentId) || AGENTS[0];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  if (messages.length === 0) {
-    return (
-      <div className="flex-1 flex items-center justify-center bg-chat-background">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="text-center max-w-md mx-auto px-6"
-        >
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-primary/10 flex items-center justify-center">
-            <svg
-              className="w-8 h-8 text-primary"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-              />
-            </svg>
-          </div>
-          <h2 className="text-2xl font-semibold text-foreground mb-3">
-            How can I help you today?
-          </h2>
-          <p className="text-muted-foreground">
-            Start a conversation by typing a message below. I'm here to assist you with any questions or tasks you have.
-          </p>
-        </motion.div>
+  const TypingIndicator = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex gap-4 p-6 justify-start"
+    >
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-chat-assistant-bubble flex items-center justify-center">
+        <Bot className="h-4 w-4 text-chat-assistant-bubble-foreground" />
       </div>
-    );
-  }
+      <div className="relative max-w-[70%]">
+        <div className="rounded-2xl px-4 py-3 bg-chat-assistant-bubble text-chat-assistant-bubble-foreground">
+          <div className="flex space-x-1">
+            {[0, 1, 2].map((i) => (
+              <motion.div
+                key={i}
+                className="w-2 h-2 bg-current rounded-full"
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.2 }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
 
   return (
-    <div 
-      ref={containerRef}
-      className="flex-1 overflow-y-auto bg-chat-background"
-    >
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="max-w-4xl mx-auto py-6"
-      >
-        {messages.map((message) => (
-          <Message
-            key={message.id}
-            content={message.content}
-            isUser={message.isUser}
-            timestamp={message.timestamp}
-            isTyping={message.isTyping}
-          />
-        ))}
+    <div className="relative flex-1 bg-chat-background">
+      <div className="absolute inset-0 overflow-y-auto pb-24 pt-4"> {/* Add padding for floating input */}
         
-        {isTyping && (
-          <Message
-            content=""
-            isUser={false}
-            timestamp={new Date()}
-            isTyping={true}
-          />
+        {/* Minimalist Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center bg-secondary p-3 rounded-full mb-2">
+            <activeAgent.icon className="h-6 w-6 text-foreground" />
+          </div>
+          <h2 className="text-2xl font-semibold text-foreground">{activeAgent.name}</h2>
+          <p className="text-sm text-muted-foreground">{activeAgent.description}</p>
+        </div>
+        
+        {messages.length === 0 ? (
+          <StarterTemplates starters={starterTemplates} onSelectStarter={onSendMessage} />
+        ) : (
+          <motion.div
+            className="max-w-4xl mx-auto px-4"
+          >
+            {messages.map((message) => <Message key={message.id} {...message} onDelete={onDeleteMessage} />)}
+            {isTyping && <TypingIndicator />}
+            <div ref={messagesEndRef} />
+          </motion.div>
         )}
-        
-        <div ref={messagesEndRef} />
-      </motion.div>
+      </div>
     </div>
   );
 }

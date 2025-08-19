@@ -1,26 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Assistant</title>
-    <meta name="description" content="A modern ChatGPT-like AI assistant interface built with React. Start conversations, get intelligent responses, and manage your chat history." />
-    <meta name="author" content="ChatGPT Interface" />
-    <meta name="keywords" content="AI, ChatGPT, assistant, artificial intelligence, chat, conversation" />
 
-    <meta property="og:title" content="ChatGPT - AI Assistant" />
-    <meta property="og:description" content="A modern ChatGPT-like AI assistant interface built with React. Start conversations, get intelligent responses, and manage your chat history." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Assistant</title>
+  <meta name="description"
+    content="A modern ChatGPT-like AI assistant interface built with React. Start conversations, get intelligent responses, and manage your chat history." />
+  <meta name="author" content="ChatGPT Interface" />
+  <meta name="keywords" content="AI, ChatGPT, assistant, artificial intelligence, chat, conversation" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="" />
-  </head>
+  <meta property="og:title" content="ChatGPT - AI Assistant" />
+  <meta property="og:description"
+    content="A modern ChatGPT-like AI assistant interface built with React. Start conversations, get intelligent responses, and manage your chat history." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="" />
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@lovable_dev" />
+  <meta name="twitter:image" content="" />
+
+  <script>
+    (function () {
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {
+        console.error('Error applying theme from inline script:', e);
+      }
+    })();
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
