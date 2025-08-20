@@ -102,7 +102,7 @@ export function Message({ id, content, isUser, timestamp, isTyping = false, onDe
           {isTyping ? (
             <TypingIndicator />
           ) : isUser ? (
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
+            <p className="text-sm leading-relaxed whitespace-pre-wrap text-white">{content}</p>
           ) : (
             <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-2 prose-table:my-4 prose-th:p-2 prose-td:p-2">
               <ReactMarkdown
@@ -153,7 +153,7 @@ export function Message({ id, content, isUser, timestamp, isTyping = false, onDe
 
       {isUser && (
         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-chat-user-bubble flex items-center justify-center">
-          <User className="h-4 w-4 text-chat-user-bubble-foreground" />
+          <User className="h-4 w-4 text-white" />
         </div>
       )}
     </motion.div>

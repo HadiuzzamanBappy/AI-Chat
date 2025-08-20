@@ -127,7 +127,7 @@ export function DesktopSidebar({
           <div className="flex items-center gap-3">
              <User className="h-5 w-5 rounded-full" />
              <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">Your Name</span>
+                <span className="text-sm font-medium text-foreground">Hadiuzzaman Bappy</span>
                 <span className="text-xs text-muted-foreground">Settings & Knowledge</span>
              </div>
           </div>
