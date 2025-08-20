@@ -46,6 +46,7 @@ export interface ChatMessage {
   isUser: boolean;
   timestamp: Date;
   modelName?: string; 
+  agentName?: string; // NEW: Name of the agent used for this message
 }
 
 // NEW: Define the Agent interface

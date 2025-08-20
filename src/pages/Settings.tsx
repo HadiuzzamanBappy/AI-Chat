@@ -120,13 +120,17 @@ export default function Settings() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}>
           <Card>
             <CardHeader>
-              <div className="flex items-center space-x-3">
-                <BrainCircuit className="h-6 w-6 text-primary" />
-                <div>
-                  <CardTitle>Knowledgebases</CardTitle>
-                  <CardDescription>
-                    Provide the AI with persistent context. Activate one to use it in all new chats.
-                  </CardDescription>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center space-x-3">
+                  <BrainCircuit className="h-6 w-6 text-primary" />
+                  <div>
+                    <CardTitle>Knowledgebases</CardTitle>
+                    <CardDescription>Provide the AI with persistent context. Activate one to use it in all new chats.</CardDescription>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2 shrink-0 self-end sm:self-center">
+                  <Label htmlFor="feed-default-kb" className="text-sm">Feed Default Context</Label>
+                  <Switch id="feed-default-kb" checked={feedDefaultKb} onCheckedChange={setFeedDefaultKb} />
                 </div>
               </div>
             </CardHeader>
@@ -229,37 +233,6 @@ export default function Settings() {
                   );
                 })}
               </AnimatePresence>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }}>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-3">
-                <SettingsIcon className="h-6 w-6 text-primary" />
-                <div>
-                  <CardTitle>AI Behavior</CardTitle>
-                  <CardDescription>
-                    Configure how the AI is initialized.
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="feed-default-kb">Feed Default Context</Label>
-                  <p className="text-sm text-muted-foreground">
-                    On first launch, automatically load a default personal context.
-                  </p>
-                </div>
-                <Switch
-                  id="feed-default-kb"
-                  checked={feedDefaultKb}
-                  onCheckedChange={setFeedDefaultKb}
-                />
-              </div>
             </CardContent>
           </Card>
         </motion.div>

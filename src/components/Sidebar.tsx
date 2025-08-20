@@ -1,17 +1,21 @@
 // src/components/Sidebar.tsx
 
 import { AnimatePresence, motion } from "framer-motion";
-import { type Conversation } from "@/lib/types";
-import { DesktopSidebar } from "./DesktopSidebar"; // Import the desktop version
+import { type Conversation, type Agent } from "@/lib/types"; // Import Agent type
+import { DesktopSidebar } from "./DesktopSidebar";
 
 interface SidebarProps {
   conversations: Conversation[];
   activeConversationId: string | null;
-  onNewChat: (agentId?: string) => void;
+  onNewChat: () => void; // Simplified `onNewChat`
   onSelectConversation: (id: string) => void;
+  onDeleteConversation: (id: string) => void;
   isMobile: boolean;
   isOpen: boolean;
   onToggle: () => void;
+  agents: Agent[]; // New prop
+  selectedAgentId: string; // New prop
+  onAgentChange: (agentId: string) => void; // New prop
 }
 
 export function Sidebar({
@@ -25,7 +29,6 @@ export function Sidebar({
     closed: { x: "-100%" }
   };
 
-  // If it's mobile, we use the slide-out panel with an overlay
   if (isMobile) {
     return (
       <AnimatePresence>
@@ -46,7 +49,7 @@ export function Sidebar({
               transition={{ type: "tween", duration: 0.3 }}
               className="fixed left-0 top-0 bottom-0 w-80 z-50 md:hidden"
             >
-              {/* The content inside is the DesktopSidebar */}
+              {/* Pass all props down to the DesktopSidebar */}
               <DesktopSidebar {...props} />
             </motion.div>
           </>
@@ -55,6 +58,6 @@ export function Sidebar({
     );
   }
 
-  // If it's not mobile, just render the desktop sidebar directly
+  // If not mobile, render the desktop sidebar directly with all props.
   return <DesktopSidebar {...props} />;
 }

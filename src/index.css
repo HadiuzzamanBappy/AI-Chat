@@ -4,13 +4,13 @@
 
 @layer base {
   :root {
-    /* Main Interface Colors */
+    /* Main Interface Colors hsl(0, 0%, 100%) hsl(0, 0%, 5%) */
     --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --foreground: 0 0% 10%;
     
-    /* Chat Interface */
-    --chat-background: 0 0% 98%;
-    --chat-user-bubble: 212 100% 48%;
+    /* Chat Interface hsl(0, 0%, 90%) hsl(40, 100%, 48%) hsl(0, 0%, 100%) hsl(0, 0%, 95%)  hsl(212, 20%, 14%) */
+    --chat-background: 0 0% 90%;
+    --chat-user-bubble: 40 100% 48%;
     --chat-user-bubble-foreground: 0 0% 100%;
     --chat-assistant-bubble: 0 0% 95%;
     --chat-assistant-bubble-foreground: 212 20% 14%;
@@ -19,14 +19,14 @@
     --sidebar-background: 0 0% 96%;
     --sidebar-foreground: 212 20% 20%;
     --sidebar-border: 0 0% 88%;
-    --sidebar-hover: 0 0% 92%;
-    --sidebar-active: 212 100% 48%;
-    --sidebar-active-foreground: 0 0% 100%;
+    --sidebar-hover: 45,100%,58%,0.5;
+    --sidebar-active: 45,100%,58%,0.5;
+    --sidebar-active-foreground: 0 0% 10%;
     
     /* Interactive Elements */
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --primary-hover: 212 100% 42%;
+    --primary: 45 100% 48%;
+    --primary-foreground: 0 0% 10%;
+    --primary-hover: 45 100% 40%;
     
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -70,6 +70,11 @@
     --chart-4: 43 74% 66%;
     
     --chart-5: 27 87% 67%;
+
+    .prose {
+      --tw-prose-pre-bg: #25250609;
+      --tw-prose-invert-pre-bg: #0f0f0f3d;
+    }
   }
 
   .dark {
@@ -79,7 +84,7 @@
     
     /* Chat Interface - Dark */
     --chat-background: 212 25% 10%;
-    --chat-user-bubble: 212 100% 48%;
+    --chat-user-bubble: 40 100% 48%;
     --chat-user-bubble-foreground: 0 0% 100%;
     --chat-assistant-bubble: 212 20% 15%;
     --chat-assistant-bubble-foreground: 210 40% 92%;
@@ -88,14 +93,12 @@
     --sidebar-background: 212 25% 6%;
     --sidebar-foreground: 210 40% 75%;
     --sidebar-border: 212 20% 18%;
-    --sidebar-hover: 212 20% 12%;
-    --sidebar-active: 212 100% 48%;
     --sidebar-active-foreground: 0 0% 100%;
     
     /* Interactive Elements - Dark */
     --primary: 0 0% 98%;
     --primary-foreground: 0 0% 9%;
-    --primary-hover: 212 100% 54%;
+    --primary-hover: 45 100% 40%;
     
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
@@ -126,7 +129,6 @@
     --chart-5: 340 75% 55%;
   }
 }
-
 @layer base {
   * {
     @apply border-border;
@@ -188,8 +190,6 @@
     @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
   }
 }
-
-
 
 @layer base {
   * {

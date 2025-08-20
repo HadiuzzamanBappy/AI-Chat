@@ -5,9 +5,10 @@ import { ChatInput } from "@/components/ChatInput";
 import { Navbar } from "@/components/Navbar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { PROVIDERS, AVAILABLE_MODELS } from "@/lib/data";
-import { type Conversation, type ChatMessage } from "@/lib/types";
-import { AGENTS } from "@/lib/agents";
+import { type Conversation, type ChatMessage, type Agent } from "@/lib/types";
+import { AGENTS as DEFAULT_AGENTS } from "@/lib/agents"; // This contains the original agent data with icon components
 import { defaultKnowledgebase } from '@/lib/default-knowledgebase';
+import { MessageSquare } from "lucide-react";
 
 interface FilePayload {
   name: string;
@@ -18,93 +19,95 @@ const Index = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [isAppLoaded, setIsAppLoaded] = useState(false);
-
-  const [providerStatus, setProviderStatus] = useState<Record<string, 'ok' | 'limit_exceeded'>>({
-    'openrouter': 'ok',
-    'openai': 'ok'
-  });
+  const [agents, setAgents] = useState<Agent[]>(DEFAULT_AGENTS);
+  const [selectedAgentId, setSelectedAgentId] = useState<string>(DEFAULT_AGENTS[0].id);
+  const [providerStatus, setProviderStatus] = useState<Record<string, 'ok' | 'limit_exceeded'>>({ 'openrouter': 'ok', 'openai': 'ok' });
   const [selectedModel, setSelectedModel] = useState<string>(AVAILABLE_MODELS[0].id);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const isMobile = useIsMobile();
-
   const [sendFullContext, setSendFullContext] = useState(true);
 
-   const handleModelChange = (newModelId: string) => {
-    // Update the UI state so the dropdown shows the new selection
-    setSelectedModel(newModelId);
-
-    // If there's no active conversation, we don't need to do anything else
-    if (!activeConversationId) return;
-
-    // Update the conversation's data state
-    setConversations(prevConversations =>
-      prevConversations.map(conv =>
-        conv.id === activeConversationId
-          ? { ...conv, modelId: newModelId } // Update the modelId for the active chat
-          : conv
-      )
-    );
-  };
-
   useEffect(() => {
+    // 1. Load Agents from localStorage and "Rehydrate" them
+    let loadedAgents: Agent[] = DEFAULT_AGENTS;
+    try {
+      const savedAgents = localStorage.getItem("chat_agents");
+      if (savedAgents) {
+        const parsedAgents: Agent[] = JSON.parse(savedAgents);
+        // --- THE FIX: Re-assign the icon component from the original data source ---
+        loadedAgents = parsedAgents.map(savedAgent => {
+          const defaultAgent = DEFAULT_AGENTS.find(d => d.id === savedAgent.id);
+          return {
+            ...savedAgent,
+            icon: defaultAgent ? defaultAgent.icon : MessageSquare, // Fallback icon
+          };
+        });
+      }
+    } catch (e) { console.error("Failed to load agents from localStorage", e); }
+    setAgents(loadedAgents);
+
+    // 2. Load Selected Agent
+    const savedSelectedAgentId = localStorage.getItem("selected_agent_id");
+    if (savedSelectedAgentId && loadedAgents.find(a => a.id === savedSelectedAgentId)) {
+      setSelectedAgentId(savedSelectedAgentId);
+    } else if (loadedAgents.length > 0) {
+      setSelectedAgentId(loadedAgents[0].id);
+    }
+    
+    // 3. Load Conversations
     let loadedConversations: Conversation[] = [];
     try {
-      const savedData = localStorage.getItem("chat_conversations");
-      if (savedData) {
-        const parsed = JSON.parse(savedData) as Conversation[];
-        loadedConversations = parsed.map(conv => ({
-          ...conv,
-          timestamp: new Date(conv.timestamp),
-          messages: conv.messages.map(msg => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp)
-          }))
-        }));
-      }
-    } catch (error) {
-      console.error("Failed to parse conversations from localStorage", error);
-    }
+        const savedData = localStorage.getItem("chat_conversations");
+        if (savedData) {
+            const parsed = JSON.parse(savedData) as Conversation[];
+            loadedConversations = parsed.filter(c => c.messages.length > 0).map(conv => ({
+                ...conv,
+                timestamp: new Date(conv.timestamp),
+                messages: conv.messages.map(msg => ({ ...msg, timestamp: new Date(msg.timestamp) }))
+            }));
+        }
+    } catch (error) { console.error("Failed to load conversations from localStorage", error); }
+    
+    setConversations(loadedConversations);
 
-    if (loadedConversations.length === 0) {
-      const agent = AGENTS[0];
-      const newConversation: Conversation = {
-        id: Date.now().toString(),
-        title: "Untitled",
-        lastMessage: "",
-        timestamp: new Date(),
-        messages: [],
-        modelId: selectedModel,
-        agentId: agent.id,
-      };
-      setConversations([newConversation]);
-      setActiveConversationId(newConversation.id);
+    if (loadedConversations.length > 0) {
+        const lastActiveId = localStorage.getItem("active_conversation_id");
+        const lastActiveConv = loadedConversations.find(c => c.id === lastActiveId);
+        if (lastActiveConv) {
+            setActiveConversationId(lastActiveConv.id);
+            setSelectedModel(lastActiveConv.modelId);
+        } else {
+            setActiveConversationId(loadedConversations[0].id);
+            setSelectedModel(loadedConversations[0].modelId);
+        }
     } else {
-      setConversations(loadedConversations);
-      const lastActiveId = localStorage.getItem("active_conversation_id");
-      const lastActiveConversation = loadedConversations.find(c => c.id === lastActiveId);
-
-      if (lastActiveConversation) {
-        setActiveConversationId(lastActiveConversation.id);
-        setSelectedModel(lastActiveConversation.modelId);
-      } else {
-        setActiveConversationId(loadedConversations[0].id);
-        setSelectedModel(loadedConversations[0].modelId);
-      }
+        setActiveConversationId(null);
     }
     setIsAppLoaded(true);
   }, []);
 
+  // --- Effect to save agent state to localStorage ---
   useEffect(() => {
     if (!isAppLoaded) return;
     try {
-      localStorage.setItem("chat_conversations", JSON.stringify(conversations));
+      // Create a version of agents safe for stringifying (without the icon function)
+      const agentsToSave = agents.map(({ icon, ...rest }) => rest);
+      localStorage.setItem("chat_agents", JSON.stringify(agentsToSave));
+      localStorage.setItem("selected_agent_id", selectedAgentId);
+    } catch (error) { console.error("Failed to save agent state to localStorage", error); }
+  }, [agents, selectedAgentId, isAppLoaded]);
+
+  // Effect for saving conversations
+  useEffect(() => {
+    if (!isAppLoaded) return;
+    try {
+      const conversationsToSave = conversations.filter(c => c.messages.length > 0);
+      localStorage.setItem("chat_conversations", JSON.stringify(conversationsToSave));
       if (activeConversationId) {
         localStorage.setItem("active_conversation_id", activeConversationId);
       }
-    } catch (error) {
-      console.error("Failed to save to localStorage", error);
-    }
+    } catch (error) { console.error("Failed to save conversations to localStorage", error); }
   }, [conversations, activeConversationId, isAppLoaded]);
 
   useEffect(() => {
@@ -118,20 +121,18 @@ const Index = () => {
   const activeConversation = conversations.find(c => c.id === activeConversationId);
   const messages = activeConversation?.messages || [];
 
-  const handleNewChat = (agentId: string = 'default') => {
-    const agent = AGENTS.find(a => a.id === agentId) || AGENTS[0];
-    const newConversation: Conversation = {
-      id: Date.now().toString(),
-      // UPDATED: The title is now clean and simple.
-      title: "Untitled",
-      lastMessage: "",
-      timestamp: new Date(),
-      messages: [],
-      modelId: selectedModel,
-      agentId: agent.id,
-    };
-    setConversations(prev => [newConversation, ...prev]);
-    setActiveConversationId(newConversation.id);
+  const handleModelChange = (newModelId: string) => {
+    setSelectedModel(newModelId);
+    if (!activeConversationId) return;
+    setConversations(prev => prev.map(conv => conv.id === activeConversationId ? { ...conv, modelId: newModelId } : conv));
+  };
+
+  const handleAgentChange = (agentId: string) => {
+    setSelectedAgentId(agentId);
+  };
+
+  const handleNewChat = () => {
+    setActiveConversationId(null);
     if (isMobile) setSidebarOpen(false);
   };
 
@@ -144,72 +145,40 @@ const Index = () => {
     if (isMobile) setSidebarOpen(false);
   };
 
-  // NEW: Smart model selection logic
   const selectBestModel = (prompt: string): string => {
     const lowerCasePrompt = prompt.toLowerCase();
-
-    // Keywords that suggest a need for a coding model
     const codeKeywords = ['javascript', 'python', 'react', 'sql', 'function', 'component', '```', 'code'];
-
-    // Keywords for creative tasks
     const creativeKeywords = ['write', 'poem', 'story', 'idea', 'suggest', 'imagine'];
-
     if (codeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
-      // Find the first available free model tagged with 'code'
       const codeModel = AVAILABLE_MODELS.find(m => m.providerId === 'openrouter' && m.capabilities.includes('code'));
       if (codeModel) return codeModel.id;
     }
-
     if (creativeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
       const creativeModel = AVAILABLE_MODELS.find(m => m.providerId === 'openrouter' && m.capabilities.includes('creative'));
       if (creativeModel) return creativeModel.id;
     }
-
-    // Default to the first available fast, free model
     const fastModel = AVAILABLE_MODELS.find(m => m.providerId === 'openrouter' && m.capabilities.includes('fast'));
-    return fastModel ? fastModel.id : 'openrouter/auto'; // Fallback
+    return fastModel ? fastModel.id : 'openrouter/auto';
   };
 
-  const handleSendMessage = async (message: string, file?: FilePayload) => {
-    if (!activeConversationId || !activeConversation) return;
-
-    let combinedContent = message;
-    if (file) {
-      combinedContent = `Attached File: "${file.name}"\n\n---\n\n${file.content}\n\n---\n\n${message}`;
-    }
-
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      content: combinedContent,
-      isUser: true,
-      timestamp: new Date()
-    };
-
-    const updatedConversations = conversations.map(conv =>
-      conv.id === activeConversationId
-        ? {
-          ...conv,
-          messages: [...conv.messages, userMessage],
-          lastMessage: message,
-          timestamp: new Date(),
-          title: conv.messages.length === 0
-            ? message.slice(0, 40) + (message.length > 40 ? '...' : '')
-            : conv.title,
-        }
-        : conv
-    );
-
-    setConversations(updatedConversations);
+  const fetchApiResponse = async (conversationForApi: Conversation, messageHistory: ChatMessage[]) => {
+    if (!conversationForApi) return;
     setIsTyping(true);
 
-    let finalModelId = activeConversation.modelId;
-    if (activeConversation.modelId === 'openrouter/auto') {
-      finalModelId = selectBestModel(combinedContent);
+    let finalModelId = conversationForApi.modelId;
+    if (conversationForApi.modelId === 'openrouter/auto') {
+      const lastUserMessage = (() => {
+        for (let i = messageHistory.length - 1; i >= 0; i--) {
+          if (messageHistory[i].isUser) return messageHistory[i].content;
+        }
+        return "";
+      })();
+      finalModelId = selectBestModel(lastUserMessage);
     }
 
     const model = AVAILABLE_MODELS.find(m => m.id === finalModelId);
     const provider = PROVIDERS.find(p => p.id === model?.providerId);
-    const agent = AGENTS.find(a => a.id === activeConversation.agentId) || AGENTS[0];
+    const agent = agents.find(a => a.id === conversationForApi.agentId) || agents[0];
 
     if (!model || !provider) {
       console.error("Active conversation is missing a valid model or provider.");
@@ -258,21 +227,11 @@ const Index = () => {
     const systemPromptContent = [agent.systemPrompt, knowledgebaseContent].filter(Boolean).join('\n\n');
     const systemMessage = { role: 'system', content: systemPromptContent };
 
-    // --- Message Preparation ---
-    // Get the full message history from the updated state
-    const allMessagesInHistory = updatedConversations
-      .find(c => c.id === activeConversationId)
-      ?.messages.map(msg => ({ role: (msg.isUser ? "user" : "assistant") as "user" | "assistant", content: msg.content })) || [];
-
-    // Decide which messages to send based on the checkbox state
     const messagesToSendToApi = sendFullContext
-      ? allMessagesInHistory // If checked, send the entire history
-      : [allMessagesInHistory.at(-1)].filter(Boolean); // If unchecked, send only the very last message
+      ? messageHistory.map(msg => ({ role: (msg.isUser ? "user" : "assistant") as "user" | "assistant", content: msg.content }))
+      : [messageHistory.at(-1)].filter((msg): msg is ChatMessage => !!msg).map(msg => ({ role: (msg.isUser ? "user" : "assistant") as "user" | "assistant", content: msg.content }));
 
-    // The final array for the API call
     const apiMessages = [systemMessage, ...messagesToSendToApi];
-
-    console.log(`Sending to ${provider.name} with model ${apiModelId}:`, apiMessages);
 
     try {
       const response = await fetch(provider.apiUrl, {
@@ -284,7 +243,6 @@ const Index = () => {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          // Use the CORRECTED model ID here
           model: apiModelId,
           messages: apiMessages,
         }),
@@ -307,11 +265,12 @@ const Index = () => {
           content: aiContent,
           isUser: false,
           timestamp: new Date(),
-          modelName: apiModelId
+          modelName: model.name, // Use finalModelId for consistency
+          agentName: agent.name
         };
         setConversations(prev =>
           prev.map(conv =>
-            conv.id === activeConversationId
+            conv.id === conversationForApi.id
               ? {
                 ...conv,
                 messages: [...conv.messages, aiMessage],
@@ -336,19 +295,84 @@ const Index = () => {
     }
   };
 
+  const handleSendMessage = async (message: string, file?: FilePayload) => {
+    let combinedContent = message;
+    if (file) { combinedContent = `Attached File: "${file.name}"\n\n---\n\n${file.content}\n\n---\n\n${message}`; }
+
+    const userMessage: ChatMessage = { id: Date.now().toString(), content: combinedContent, isUser: true, timestamp: new Date() };
+
+    if (!activeConversationId) {
+      // This is the FIRST message of a NEW chat
+      const agent = agents.find(a => a.id === selectedAgentId) || agents[0];
+      const newConversation: Conversation = {
+        id: Date.now().toString(),
+        title: message.slice(0, 40) + (message.length > 40 ? '...' : ''),
+        lastMessage: message,
+        timestamp: new Date(),
+        messages: [userMessage],
+        modelId: selectedModel,
+        agentId: agent.id,
+      };
+
+      setConversations(prev => [newConversation, ...prev]);
+      setActiveConversationId(newConversation.id);
+      await fetchApiResponse(newConversation, newConversation.messages);
+    } else {
+      // This is a message in an EXISTING chat
+      let updatedConversation: Conversation | undefined;
+      const updatedConversations = conversations.map(conv => {
+        if (conv.id === activeConversationId) {
+          updatedConversation = { ...conv, messages: [...conv.messages, userMessage], lastMessage: message, timestamp: new Date() };
+          return updatedConversation;
+        }
+        return conv;
+      });
+      setConversations(updatedConversations);
+      
+      if (updatedConversation) {
+        await fetchApiResponse(updatedConversation, updatedConversation.messages);
+      }
+    }
+  };
+
+  const handleRerunMessage = async (messageId: string) => {
+    const conversation = conversations.find(c => c.id === activeConversationId);
+    if (!conversation) return;
+    const messageIndex = conversation.messages.findIndex(msg => msg.id === messageId);
+    if (messageIndex === -1 || !conversation.messages[messageIndex].isUser) return;
+
+    const truncatedMessages = conversation.messages.slice(0, messageIndex + 1);
+    
+    let updatedConversation: Conversation | undefined;
+    const updatedConversations = conversations.map(conv => {
+        if (conv.id === activeConversationId) {
+            updatedConversation = { ...conv, messages: truncatedMessages };
+            return updatedConversation;
+        }
+        return conv;
+    });
+    setConversations(updatedConversations);
+
+    if (updatedConversation) {
+      await fetchApiResponse(updatedConversation, truncatedMessages);
+    }
+  };
+
+  const handleDeleteConversation = (conversationId: string) => {
+    const updatedConversations = conversations.filter(conv => conv.id !== conversationId);
+    setConversations(updatedConversations);
+    if (activeConversationId === conversationId) {
+      if (updatedConversations.length > 0) {
+        handleSelectConversation(updatedConversations[0].id);
+      } else {
+        handleNewChat();
+      }
+    }
+  };
+
   const handleDeleteMessage = (messageId: string) => {
     if (!activeConversationId) return;
-
-    setConversations(prev =>
-      prev.map(conv =>
-        conv.id === activeConversationId
-          ? {
-            ...conv,
-            messages: conv.messages.filter(msg => msg.id !== messageId),
-          }
-          : conv
-      )
-    );
+    setConversations(prev => prev.map(conv => conv.id === activeConversationId ? { ...conv, messages: conv.messages.filter(msg => msg.id !== messageId) } : conv));
   };
 
   if (!isAppLoaded) {
@@ -362,21 +386,21 @@ const Index = () => {
   return (
     <div className="h-screen flex flex-col bg-background">
       {isMobile && (
-        <Navbar
-          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-          title={activeConversation?.title || "Personal AI"}
-        />
+        <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} title={activeConversation?.title || "New Chat"} />
       )}
-
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           conversations={conversations}
           activeConversationId={activeConversationId}
           onNewChat={handleNewChat}
           onSelectConversation={handleSelectConversation}
+          onDeleteConversation={handleDeleteConversation}
           isMobile={isMobile}
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
+          agents={agents}
+          selectedAgentId={selectedAgentId}
+          onAgentChange={handleAgentChange}
         />
         <div className="flex-1 flex flex-col">
           <Chat
@@ -384,12 +408,13 @@ const Index = () => {
             isTyping={isTyping}
             onSendMessage={handleSendMessage}
             onDeleteMessage={handleDeleteMessage}
+            onRerunMessage={handleRerunMessage}
             activeConversation={activeConversation}
           />
           <ChatInput
             onSendMessage={handleSendMessage}
             disabled={isTyping}
-            placeholder={messages.length === 0 ? "Start a conversation..." : "Type your message..."}
+            placeholder={!activeConversationId ? "Start a new conversation..." : "Type your message..."}
             models={AVAILABLE_MODELS}
             selectedModel={selectedModel}
             onModelChange={handleModelChange}
