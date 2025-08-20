@@ -45,6 +45,7 @@ export interface ChatMessage {
   content: string;
   isUser: boolean;
   timestamp: Date;
+  modelName?: string; 
 }
 
 // NEW: Define the Agent interface

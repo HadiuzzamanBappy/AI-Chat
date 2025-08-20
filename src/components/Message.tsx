@@ -1,14 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { motion } from "framer-motion";
-import { User, Bot, Copy, Check, Trash2 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
+import { User, Bot, Copy, Check, Trash2, Cpu } from "lucide-react";
+import ReactMarkdown, { type ExtraProps } from "react-markdown";
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button"; // Make sure to import the Button component
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 
+// Interface defining all the props the component accepts
 interface MessageProps {
   id: string;
   content: string;
@@ -16,17 +16,24 @@ interface MessageProps {
   timestamp: Date;
   isTyping?: boolean;
   onDelete: (messageId: string) => void;
+  modelName?: string;
 }
 
-export function Message({ id, content, isUser, timestamp, isTyping = false, onDelete }: MessageProps) {
+// A precise type for the props of our custom 'code' component.
+// This solves the "'inline' does not exist on type..." error.
+type CodeBlockProps = {
+    children?: ReactNode;
+    className?: string;
+    node?: unknown;
+    inline?: boolean;
+} & ExtraProps;
+
+export function Message({ id, content, isUser, timestamp, isTyping = false, onDelete, modelName }: MessageProps) {
   const [isDark, setIsDark] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
-  // Your custom theme detection logic is preserved
   useEffect(() => {
-    const checkTheme = () => {
-      setIsDark(document.documentElement.classList.contains('dark'));
-    };
+    const checkTheme = () => setIsDark(document.documentElement.classList.contains('dark'));
     checkTheme();
     const observer = new MutationObserver(checkTheme);
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
@@ -36,15 +43,12 @@ export function Message({ id, content, isUser, timestamp, isTyping = false, onDe
   const handleCopy = () => {
     navigator.clipboard.writeText(content);
     setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+    setTimeout(() => setIsCopied(false), 2000);
   };
 
   const messageVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0
-    }
+    visible: { opacity: 1, y: 0 }
   };
 
   const TypingIndicator = () => (
@@ -54,11 +58,7 @@ export function Message({ id, content, isUser, timestamp, isTyping = false, onDe
           key={i}
           className="w-2 h-2 bg-current rounded-full"
           animate={{ opacity: [0.4, 1, 0.4] }}
-          transition={{
-            duration: 1.4,
-            repeat: Infinity,
-            delay: i * 0.2
-          }}
+          transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.2 }}
         />
       ))}
     </div>
@@ -79,6 +79,10 @@ export function Message({ id, content, isUser, timestamp, isTyping = false, onDe
     </div>
   );
 
+  // Assign the style to a correctly typed variable before using it.
+  // This solves the "No overload matches this call" error.
+  const syntaxHighlighterStyle: { [key: string]: CSSProperties } = isDark ? oneDark : oneLight;
+
   return (
     <motion.div
       variants={messageVariants}
@@ -94,12 +98,7 @@ export function Message({ id, content, isUser, timestamp, isTyping = false, onDe
       )}
 
       <div className="relative max-w-[70%]">
-        <div
-          className={`rounded-2xl px-3 py-2 ${isUser
-            ? 'bg-chat-user-bubble text-chat-user-bubble-foreground'
-            : 'bg-chat-assistant-bubble text-chat-assistant-bubble-foreground'
-            }`}
-        >
+        <div className={`rounded-2xl px-3 py-2 ${isUser ? 'bg-chat-user-bubble text-chat-user-bubble-foreground' : 'bg-chat-assistant-bubble text-chat-assistant-bubble-foreground'}`}>
           {isTyping ? (
             <TypingIndicator />
           ) : isUser ? (
@@ -109,38 +108,41 @@ export function Message({ id, content, isUser, timestamp, isTyping = false, onDe
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  code({ node, inline, className, children, ...props }: any) {
+                  // Apply our new, precise type to the code component's props.
+                  code({ inline, className, children, ...props }: CodeBlockProps) {
                     const match = /language-(\w+)/.exec(className || '');
-                    return !inline && match ? (
-                      <SyntaxHighlighter
-                        style={isDark ? (oneDark as any) : (oneLight as any)}
-                        language={match[1]}
-                        PreTag="div"
-                        className="rounded-lg !my-2"
-                        {...props}
-                      >
-                        {String(children).replace(/\n$/, '')}
-                      </SyntaxHighlighter>
-                    ) : (
-                      <code
-                        className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono"
-                        {...props}
-                      >
+                    if (!inline) {
+                      return (
+                        <SyntaxHighlighter
+                          style={syntaxHighlighterStyle} // Use the correctly typed style variable
+                          language={match ? match[1] : 'plaintext'}
+                          PreTag="div"
+                          className="rounded-lg !my-2"
+                          {...props}
+                        >
+                          {String(children).replace(/\n$/, '')}
+                        </SyntaxHighlighter>
+                      );
+                    }
+                    return (
+                      <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
                         {children}
                       </code>
                     );
                   },
-                  pre({ children }: any) {
-                    return <>{children}</>;
-                  }
                 }}
               >
                 {content}
               </ReactMarkdown>
             </div>
           )}
-
-          <div className="flex justify-end mt-2">
+          <div className="flex items-center justify-end gap-3 mt-2">
+            {!isUser && modelName && (
+              <div className="flex items-center gap-1 text-xs opacity-50">
+                <Cpu size={12} />
+                <span>{modelName}</span>
+              </div>
+            )}
             <span className="text-xs opacity-60">
               {timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>

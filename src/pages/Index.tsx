@@ -28,6 +28,25 @@ const Index = () => {
   const [isTyping, setIsTyping] = useState(false);
   const isMobile = useIsMobile();
 
+  const [sendFullContext, setSendFullContext] = useState(true);
+
+   const handleModelChange = (newModelId: string) => {
+    // Update the UI state so the dropdown shows the new selection
+    setSelectedModel(newModelId);
+
+    // If there's no active conversation, we don't need to do anything else
+    if (!activeConversationId) return;
+
+    // Update the conversation's data state
+    setConversations(prevConversations =>
+      prevConversations.map(conv =>
+        conv.id === activeConversationId
+          ? { ...conv, modelId: newModelId } // Update the modelId for the active chat
+          : conv
+      )
+    );
+  };
+
   useEffect(() => {
     let loadedConversations: Conversation[] = [];
     try {
@@ -221,12 +240,8 @@ const Index = () => {
       return;
     }
 
-    // --- FIX STARTS HERE: This is the critical change ---
-    // Prepare the model ID specifically for the API call.
     let apiModelId = finalModelId;
 
-    // If the provider is NOT OpenRouter (e.g., it's 'openai'), we must strip the prefix
-    // from the model ID. For example, "openai/gpt-4o" becomes "gpt-4o".
     if (provider.id !== 'openrouter' && apiModelId.includes('/')) {
       apiModelId = apiModelId.split('/')[1];
     }
@@ -244,11 +259,18 @@ const Index = () => {
     const systemMessage = { role: 'system', content: systemPromptContent };
 
     // --- Message Preparation ---
-    const userAndAssistantMessages = updatedConversations
+    // Get the full message history from the updated state
+    const allMessagesInHistory = updatedConversations
       .find(c => c.id === activeConversationId)
-      ?.messages.map(msg => ({ role: msg.isUser ? "user" : "assistant", content: msg.content })) || [];
+      ?.messages.map(msg => ({ role: (msg.isUser ? "user" : "assistant") as "user" | "assistant", content: msg.content })) || [];
 
-    const apiMessages = [systemMessage, ...userAndAssistantMessages];
+    // Decide which messages to send based on the checkbox state
+    const messagesToSendToApi = sendFullContext
+      ? allMessagesInHistory // If checked, send the entire history
+      : [allMessagesInHistory.at(-1)].filter(Boolean); // If unchecked, send only the very last message
+
+    // The final array for the API call
+    const apiMessages = [systemMessage, ...messagesToSendToApi];
 
     console.log(`Sending to ${provider.name} with model ${apiModelId}:`, apiMessages);
 
@@ -284,7 +306,8 @@ const Index = () => {
           id: (Date.now() + 1).toString(),
           content: aiContent,
           isUser: false,
-          timestamp: new Date()
+          timestamp: new Date(),
+          modelName: apiModelId
         };
         setConversations(prev =>
           prev.map(conv =>
@@ -369,8 +392,10 @@ const Index = () => {
             placeholder={messages.length === 0 ? "Start a conversation..." : "Type your message..."}
             models={AVAILABLE_MODELS}
             selectedModel={selectedModel}
-            onModelChange={setSelectedModel}
+            onModelChange={handleModelChange}
             providerStatus={providerStatus}
+            isFullContext={sendFullContext}
+            onIsFullContextChange={setSendFullContext}
           />
         </div>
       </div>

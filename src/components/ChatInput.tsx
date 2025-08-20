@@ -6,6 +6,8 @@ import { motion } from "framer-motion";
 import { ModelSelector } from "./ModelSelector";
 import { type Model } from "@/lib/types";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 // Configuration for allowed file types
 const ALLOWED_FILE_TYPES = [
@@ -34,6 +36,8 @@ interface ChatInputProps {
   selectedModel: string;
   onModelChange: (modelId: string) => void;
   providerStatus: Record<string, 'ok' | 'limit_exceeded'>;
+  isFullContext: boolean; // Add this prop
+  onIsFullContextChange: (checked: boolean) => void; // Add this prop
 }
 
 export function ChatInput({
@@ -43,7 +47,9 @@ export function ChatInput({
   models,
   selectedModel,
   onModelChange,
-  providerStatus
+  providerStatus,
+  isFullContext, // Destructure the new prop
+  onIsFullContextChange, // Destructure the new prop
 }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
@@ -147,7 +153,7 @@ export function ChatInput({
       onDrop={handleDrop}
     >
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center mb-2">
+        <div className="flex items-center justify-between mb-2">
           <ModelSelector
             models={models}
             selectedModel={selectedModel}
@@ -155,6 +161,20 @@ export function ChatInput({
             disabled={disabled}
             providerStatus={providerStatus}
           />
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="full-context"
+              checked={isFullContext}
+              onCheckedChange={onIsFullContextChange}
+              disabled={disabled}
+            />
+            <Label
+              htmlFor="full-context"
+              className="text-sm font-medium text-muted-foreground cursor-pointer"
+            >
+              Send Full Context
+            </Label>
+          </div>
         </div>
 
         {attachedFile && (
