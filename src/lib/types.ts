@@ -12,6 +12,7 @@ export interface Model {
   name: string;
   providerId: string;
   capabilities: ('code' | 'fast' | 'creative' | 'powerful' | 'chat' | 'multilingual')[]; // NEW
+  apiUrlOverride?: string;
 }
 
 export interface KnowledgeFile {

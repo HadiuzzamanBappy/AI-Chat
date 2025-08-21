@@ -15,13 +15,7 @@ export const PROVIDERS: Provider[] = [
     name: 'OpenAI',
     apiUrl: 'https://api.openai.com/v1/chat/completions',
     apiKeyEnvVar: 'VITE_OPENAI_API_KEY'
-  },
-  {
-    id: 'huggingface',
-    name: 'Hugging Face',
-    apiUrl: 'https://api-inference.huggingface.co/v1/chat/completions',
-    apiKeyEnvVar: 'VITE_HUGGINGFACE_API_KEY'
-  },
+  }
 ];
 
 export const AVAILABLE_MODELS: Model[] = [
@@ -97,31 +91,11 @@ export const AVAILABLE_MODELS: Model[] = [
     capabilities: ['code', 'creative', 'powerful', 'multilingual']
   },
 
-  // --- Hugging Face Models ---
-  {
-    id: "mistralai/Mixtral-8x7B-Instruct-v0.1",
-    name: "Mixtral 8x7B (HF)",
-    providerId: "huggingface",
-    capabilities: ['code', 'creative', 'multilingual']
-  },
-  {
-    id: "HuggingFaceH4/zephyr-7b-beta",
-    name: "Zephyr 7B (HF)",
-    providerId: "huggingface",
-    capabilities: ['fast', 'chat']
-  },
-
   // --- Auto-Selection Models ---
   {
     id: "openrouter/auto",
     name: "Auto (Smart Select)",
     providerId: "openrouter",
-    capabilities: [] // No capabilities for auto
-  },
-  {
-    id: "huggingface/auto",
-    name: "Auto (Smart Select)",
-    providerId: "huggingface",
     capabilities: [] // No capabilities for auto
   },
 ];
