@@ -137,7 +137,7 @@ export function Message({ id, content, isUser, timestamp, onDelete, onRerun, mod
         </div>
       )}
 
-      <div className="relative max-w-[70%]">
+      <div className="relative sm:max-w-[70%]">
         <div className={`rounded-2xl px-3 py-2 ${isUser ? 'bg-chat-user-bubble text-chat-user-bubble-foreground' : 'bg-chat-assistant-bubble text-chat-assistant-bubble-foreground'}`}>
           {isUser ? (
             <p className="text-sm leading-relaxed whitespace-pre-wrap text-white">{displayedContent}</p>

@@ -97,10 +97,10 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
 
   return (
     <div className="relative flex-1 bg-chat-background">
-      <div className="absolute inset-0 overflow-y-auto pb-14 pt-4">
+      <div className="absolute inset-0 overflow-y-auto overflow-x-hidden pb-4 pt-4">
         
         {/* Chat Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-4 p-2">
           <div className="inline-flex items-center justify-center bg-secondary p-3 rounded-full mb-2">
             <activeAgent.icon className="h-6 w-6 text-foreground" />
           </div>

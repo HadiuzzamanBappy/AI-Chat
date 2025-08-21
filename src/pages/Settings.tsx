@@ -44,10 +44,10 @@ export default function Settings() {
     return saved === null ? false : JSON.parse(saved);
   });
 
-   useEffect(() => {
+  useEffect(() => {
     const loadedKeys: Record<string, string> = {};
     const initialVisible: string[] = [];
-    
+
     PROVIDERS.forEach(provider => {
       const storedKey = localStorage.getItem(provider.apiKeyEnvVar);
       if (storedKey !== null) {
@@ -138,7 +138,7 @@ export default function Settings() {
     key: apiKeys[provider.id] || '',
     setKey: (value: string) => setApiKeys(prev => ({ ...prev, [provider.id]: value })),
   }));
-  
+
   const addedProviders = apiProviders.filter(p => visibleApis.includes(p.id));
   const availableProviders = apiProviders.filter(p => !visibleApis.includes(p.id));
 
@@ -157,7 +157,7 @@ export default function Settings() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}>
           <Accordion type="single" collapsible className="w-full space-y-4">
             <AccordionItem value="agents" className="border rounded-lg">
-              <AccordionTrigger className="px-6 py-4">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
                 <div className="flex items-center space-x-3 text-left">
                   <Bot className="h-6 w-6 text-primary" />
                   <div>
@@ -239,13 +239,13 @@ export default function Settings() {
                       <p className="text-sm text-muted-foreground font-normal">Provide the AI with persistent context.</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2 mr-4" onClick={(e) => e.stopPropagation()}>
-                    <Label htmlFor="feed-default-kb" className="text-sm font-normal text-muted-foreground">Owner Context</Label>
-                    <Switch id="feed-default-kb" checked={feedDefaultKb} onCheckedChange={setFeedDefaultKb} />
-                  </div>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6 pt-2 space-y-4">
+                <div className="flex items-center space-x-2 mr-4 justify-end" onClick={(e) => e.stopPropagation()}>
+                  <Label htmlFor="feed-default-kb" className="text-sm font-normal text-muted-foreground">Owner Context</Label>
+                  <Switch id="feed-default-kb" checked={feedDefaultKb} onCheckedChange={setFeedDefaultKb} />
+                </div>
                 <div className="flex items-center gap-2">
                   <Input
                     placeholder="New knowledgebase name..."
@@ -349,7 +349,7 @@ export default function Settings() {
 
             <AccordionItem value="api-keys" className="border rounded-lg">
               <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                 <div className="flex justify-between items-center w-full">
+                <div className="flex justify-between items-center w-full">
                   <div className="flex items-center space-x-3 text-left">
                     <KeyRound className="h-6 w-6 text-primary" />
                     <div>
@@ -357,46 +357,49 @@ export default function Settings() {
                       <p className="text-sm text-muted-foreground font-normal">Store your API keys in local browser storage.</p>
                     </div>
                   </div>
-                  {availableProviders.length > 0 && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="mr-4" onClick={(e) => e.stopPropagation()}>
-                          <PlusCircle className="h-4 w-4 mr-2" /> Add Key
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        {availableProviders.map((provider) => (
-                          <DropdownMenuItem key={provider.id} onSelect={() => setVisibleApis(prev => [...prev, provider.id])}>
-                            {provider.name}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-6 pb-6 pt-2 space-y-4">
-                {addedProviders.map((provider) => (
-                  <div key={provider.id}>
-                    <div className="flex justify-between items-center mb-1">
-                      <Label htmlFor={`${provider.id}-key`}>{provider.name} API Key</Label>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
+                <div className="flex flex-col gap-2 items-end w-full">
+                  {addedProviders.map((provider) => (
+                    <div key={provider.id} className="w-full">
+                      <div className="flex justify-between items-center mb-1">
+                        <Label htmlFor={`${provider.id}-key`}>{provider.name} API Key</Label>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
                           provider.setKey('');
                           localStorage.removeItem(provider.apiKeyEnvVar);
                           setVisibleApis(prev => prev.filter(id => id !== provider.id));
                           toast.info(`${provider.name} API Key removed.`);
                         }}>
-                        <Trash2 className="h-4 w-4 text-muted-foreground" />
-                      </Button>
+                          <Trash2 className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </div>
+                      <Input id={`${provider.id}-key`} type="password" value={provider.key} onChange={(e) => provider.setKey(e.target.value)} placeholder="Enter your key..." />
                     </div>
-                    <Input id={`${provider.id}-key`} type="password" value={provider.key} onChange={(e) => provider.setKey(e.target.value)} placeholder="Enter your key..." />
-                  </div>
-                ))}
-                {addedProviders.length === 0 && (
-                   <p className="text-sm text-muted-foreground text-center py-4">No API keys added. Click "Add Key" to start.</p>
-                )}
-                {addedProviders.length > 0 && (
-                  <Button onClick={handleSaveApiKeys}>Save All Keys</Button>
+                  ))}
+                  {addedProviders.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">No API keys added. Click "Add Key" to start.</p>
+                  )}
+                  {addedProviders.length > 0 && (
+                    <Button onClick={handleSaveApiKeys}>Save All Keys</Button>
+                  )}
+                </div>
+
+                {availableProviders.length > 0 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="w-full bg-secondary" onClick={(e) => e.stopPropagation()}>
+                        <PlusCircle className="h-4 w-4 mr-2" /> Add Key
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      {availableProviders.map((provider) => (
+                        <DropdownMenuItem key={provider.id} onSelect={() => setVisibleApis(prev => [...prev, provider.id])}>
+                          {provider.name}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
               </AccordionContent>
             </AccordionItem>
@@ -409,7 +412,7 @@ export default function Settings() {
               <div className="flex items-center space-x-3">
                 <Trash2 className="h-6 w-6 text-primary" />
                 <div>
-                  <CardTitle>Data Management</CardTitle>
+                  <p className="font-semibold">Data Management</p>
                   <CardDescription>
                     Manage your conversation history.
                   </CardDescription>
@@ -422,8 +425,8 @@ export default function Settings() {
                 Export History
               </Button>
               <Button variant="destructive" onClick={handleClearHistory}>
-                <Eraser className="h-4 w-4 mr-2" />
-                Clear All Conversations
+                <Eraser className="h-4 w-4 mr-2 text-wrap" />
+                Clear History
               </Button>
             </CardContent>
           </Card>
