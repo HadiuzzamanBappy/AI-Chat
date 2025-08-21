@@ -2,24 +2,67 @@
 <html lang="en">
 
 <head>
+  <!-- ======================================================= -->
+  <!-- Primary Meta Tags -->
+  <!-- ======================================================= -->
   <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="Hadiuzzaman Bappy" />
+
+  <!-- Title and Description -->
   <title>Open LLM Chat</title>
-  <meta name="description"
-    content="A modern ChatGPT-like AI assistant interface built with React. Start conversations, get intelligent responses, and manage your chat history." />
-  <meta name="author" content="ChatGPT Interface" />
+  <meta name="description" content="A modern ChatGPT-like AI assistant interface built with React. Start conversations, get intelligent responses, and manage your chat history." />
   <meta name="keywords" content="AI, ChatGPT, assistant, artificial intelligence, chat, conversation" />
 
-  <meta property="og:title" content="ChatGPT - AI Assistant" />
-  <meta property="og:description"
-    content="A modern ChatGPT-like AI assistant interface built with React. Start conversations, get intelligent responses, and manage your chat history." />
+  <!-- ======================================================= -->
+  <!-- Theme and UI Colors -->
+  <!-- ======================================================= -->
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
+
+  <!-- ======================================================= -->
+  <!-- Favicons and Icons -->
+  <!-- ======================================================= -->
+  <link rel="icon" type="image/png" href="/favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg" />
+  <link rel="shortcut icon" href="/favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- ======================================================= -->
+  <!-- SEO and Canonical URL -->
+  <!-- ======================================================= -->
+  <link rel="canonical" href="https://open-llm-chat.vercel.app/" />
+
+  <!-- ======================================================= -->
+  <!-- Open Graph / Social Media -->
+  <!-- ======================================================= -->
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="" />
+  <meta property="og:url" content="https://open-llm-chat.vercel.app/" />
+  <meta property="og:title" content="Open LLM Chat" />
+  <meta property="og:description" content="A modern ChatGPT-like AI assistant interface built with React. Start conversations, get intelligent responses, and manage your chat history." />
+  <meta property="og:image" content="https://open-llm-chat.vercel.app/favicon/apple-touch-icon.png" />
+  <meta property="og:site_name" content="Open LLM Chat" />
 
+  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:site" content="@lovable_dev" />
-  <meta name="twitter:image" content="" />
+  <meta name="twitter:title" content="Open LLM Chat" />
+  <meta name="twitter:description" content="A modern ChatGPT-like AI assistant interface built with React. Start conversations, get intelligent responses, and manage your chat history." />
+  <meta name="twitter:image" content="https://open-llm-chat.vercel.app/favicon/apple-touch-icon.png" />
 
+  <!-- ======================================================= -->
+  <!-- Preconnect and External Resources -->
+  <!-- ======================================================= -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- ======================================================= -->
+  <!-- Theme Script (Critical - Must load before content) -->
+  <!-- ======================================================= -->
   <script>
     (function () {
       try {
@@ -35,7 +78,10 @@
 </head>
 
 <body>
+  <!-- React App Root -->
   <div id="root"></div>
+  
+  <!-- Main Application Script -->
   <script type="module" src="/src/main.tsx"></script>
 </body>
 

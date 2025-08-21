@@ -135,8 +135,9 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply bg-background text-foreground antialiased;
     transition: var(--transition-smooth);
+    font-family: 'Poppins', sans-serif;
   }
   
   /* Scrollbar Styling */
