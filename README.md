@@ -8,6 +8,7 @@
 A modern ChatGPT-like AI assistant interface built with React. Start conversations, get intelligent responses, and manage your chat history. Built with **React**, **Vite**, **TypeScript**, **Tailwind CSS**, and **shadcn-ui**.
 
 **Supported AI Providers:**
+
 - OpenAI (GPT models)
 - OpenRouter (Multiple AI models including Mistral, Claude, etc.)
 
@@ -231,12 +232,14 @@ This guide outlines the process for converting this React web application into a
 ### Part 1: Initial Setup & First APK Build
 
 1. **Install Dependencies & Build Web App**
+
  ```sh
  npm install
  npm run build
  ```
 
 2. **Setup Capacitor**
+
  ```sh
  npm install @capacitor/core @capacitor/cli --save-dev
  npm install @capacitor/android
@@ -246,48 +249,57 @@ This guide outlines the process for converting this React web application into a
  ```
 
 3. **Sync Your Web App**
+
  ```sh
  npx cap sync
  ```
 
 4. **Build the APK in Android Studio**
+
  ```sh
  npx cap open android
  ```
 
-	- Wait for Android Studio to finish its Gradle sync.
- - Go to **Build > Generate Signed Bundle / APK...**
- - Select **APK** and click **Next**.
- - Click **Create new...** to generate a new keystore.
- - **Save your keystore file and passwords for future updates.**
- - Select the `release` build variant and click **Finish**.
- - Your signed `app-release.apk` will be in `android/app/release/`.
+ - Wait for Android Studio to finish its Gradle sync.
+
+- Go to **Build > Generate Signed Bundle / APK...**
+- Select **APK** and click **Next**.
+- Click **Create new...** to generate a new keystore.
+- **Save your keystore file and passwords for future updates.**
+- Select the `release` build variant and click **Finish**.
+- Your signed `app-release.apk` will be in `android/app/release/`.
 
 ---
 
 ### Part 2: Workflow for Updating the App
 
 1. **Build Latest Web App Changes**
+
  ```sh
  npm run build
  ```
 
 2. **Update App Version**
- - Open `android/app/build.gradle`.
- - Increment `versionCode` and optionally update `versionName`.
+
+- Open `android/app/build.gradle`.
+- Increment `versionCode` and optionally update `versionName`.
+
 3. **Sync Your Changes**
+
  ```sh
  npx cap sync
  ```
 
 4. **Rebuild the APK**
+
  ```sh
  npx cap open android
  ```
 
-	- Use your existing keystore file and passwords.
- - Select the `release` build variant and click **Finish**.
- - Your updated APK will be ready for distribution.
+ - Use your existing keystore file and passwords.
+
+- Select the `release` build variant and click **Finish**.
+- Your updated APK will be ready for distribution.
 
 ---
 
@@ -313,7 +325,6 @@ npx cap sync
 ```
 
 ### Step 4: Rebuild the APK
-
 
 ```bash
 # Open the project in Android Studio
