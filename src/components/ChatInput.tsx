@@ -142,18 +142,19 @@ export function ChatInput({
   }, [message]);
 
   return (
-    // UPDATED: The motion.div is now the drop zone
     <motion.div
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="border-t border-sidebar-border bg-sidebar-background p-4 relative" // Added 'relative'
+      // RESPONSIVE: Adjusted padding for mobile vs. desktop
+      className="border-t border-sidebar-border bg-sidebar-background p-3 sm:p-4 relative"
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-2">
+        {/* RESPONSIVE: Stacks vertically on mobile, row on desktop. Adjusted gap and margin. */}
+        <div className="flex flex-row items-center justify-between gap-3 mb-3">
           <ModelSelector
             models={models}
             selectedModel={selectedModel}
@@ -161,7 +162,7 @@ export function ChatInput({
             disabled={disabled}
             providerStatus={providerStatus}
           />
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 self-center sm:self-center">
             <Checkbox
               id="full-context"
               checked={isFullContext}
@@ -170,7 +171,8 @@ export function ChatInput({
             />
             <Label
               htmlFor="full-context"
-              className="text-sm font-medium text-muted-foreground cursor-pointer"
+              // RESPONSIVE: Slightly smaller text on mobile
+              className="text-xs sm:text-sm font-medium text-muted-foreground cursor-pointer"
             >
               Send Full Context
             </Label>
@@ -178,18 +180,20 @@ export function ChatInput({
         </div>
 
         {attachedFile && (
+          // This component is already quite responsive, no major changes needed.
           <div className="mb-2 flex items-center justify-between bg-secondary p-2 rounded-md text-sm">
-            <div className="flex items-center gap-2 font-medium">
-              <FileText className="h-4 w-4" />
-              <span>{attachedFile.name}</span>
+            <div className="flex items-center gap-2 font-medium truncate">
+              <FileText className="h-4 w-4 flex-shrink-0" />
+              <span className="truncate">{attachedFile.name}</span>
             </div>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setAttachedFile(null)}>
+            <Button variant="ghost" size="icon" className="h-6 w-6 flex-shrink-0" onClick={() => setAttachedFile(null)}>
               <X className="h-4 w-4" />
             </Button>
           </div>
         )}
 
-        <div className="relative flex items-end space-x-3 bg-input border border-input-border rounded-xl p-3 focus-within:ring-2 focus-within:ring-ring/20 transition-colors">
+        {/* RESPONSIVE: Adjusted padding inside the input area */}
+        <div className="relative flex items-end space-x-2 sm:space-x-3 bg-input border border-input-border rounded-xl p-2 sm:p-3 focus-within:ring-2 focus-within:ring-ring/20 transition-colors">
           <Button
             variant="ghost"
             size="icon"
@@ -228,12 +232,12 @@ export function ChatInput({
           </Button>
         </div>
 
-        <p className="text-xs text-muted-foreground mt-2 text-center">
+        {/* RESPONSIVE: Hide the drag & drop hint on mobile where it's less relevant */}
+        <p className="hidden sm:block text-xs text-muted-foreground mt-2 text-center">
           You can also drag & drop a file into this input area.
         </p>
       </div>
 
-      {/* UPDATED: Overlay is now contained within the parent motion.div */}
       {isDragging && (
         <div
           className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 border-2 border-dashed border-primary rounded-lg"

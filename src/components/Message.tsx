@@ -1,4 +1,4 @@
-// src/components/Message.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { motion } from "framer-motion";
 import { User, Bot, Copy, Check, Trash2, Cpu, RotateCw } from "lucide-react";

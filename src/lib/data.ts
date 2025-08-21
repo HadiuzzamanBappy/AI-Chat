@@ -16,28 +16,112 @@ export const PROVIDERS: Provider[] = [
     apiUrl: 'https://api.openai.com/v1/chat/completions',
     apiKeyEnvVar: 'VITE_OPENAI_API_KEY'
   },
+  {
+    id: 'huggingface',
+    name: 'Hugging Face',
+    apiUrl: 'https://api-inference.huggingface.co/v1/chat/completions',
+    apiKeyEnvVar: 'VITE_HUGGINGFACE_API_KEY'
+  },
 ];
 
-// Central definition for all available models
 export const AVAILABLE_MODELS: Model[] = [
-  // Free, fast models are tagged first
-  // --- Original Fast & Free Models ---
-  { id: "mistralai/mistral-7b-instruct", name: "Mistral 7B", providerId: "openrouter", capabilities: ['fast'] },
-  { id: "mistralai/mistral-nemo:free", name: "Mistral Nemo", providerId: "openrouter", capabilities: ['fast'] },
-  { id: "meta-llama/llama-3-8b-instruct", name: "Llama 3 8B", providerId: "openrouter", capabilities: ['fast', 'code'] },
-  { id: "qwen/qwen3-coder:free", name: "Qwen 3 Coder", providerId: "openrouter", capabilities: ['fast', 'code'] },
-  { id: "tngtech/deepseek-r1t2-chimera:free", name: "DeepSeek R1T2 Chimera", providerId: "openrouter", capabilities: ['fast', 'code'] },
-  { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air", providerId: "openrouter", capabilities: ['fast', 'code'] },
-  { id: "google/gemini-flash-1.5", name: "Gemini 1.5 Flash", providerId: "openrouter", capabilities: ['fast', 'creative'] },
-  { id: "openai/gpt-oss-20b:free", name: "GPT-OSS 20B", providerId: "openrouter", capabilities: ['fast', 'creative'] },
+  // --- OpenRouter Free & Fast Models ---
+  {
+    id: "mistralai/mistral-7b-instruct",
+    name: "Mistral 7B",
+    providerId: "openrouter",
+    capabilities: ['fast', 'chat']
+  },
+  {
+    id: "mistralai/mistral-nemo:free",
+    name: "Mistral Nemo",
+    providerId: "openrouter",
+    capabilities: ['fast', 'chat']
+  },
+  {
+    id: "meta-llama/llama-3-8b-instruct",
+    name: "Llama 3 8B",
+    providerId: "openrouter",
+    capabilities: ['fast', 'code', 'chat']
+  },
+  {
+    id: "qwen/qwen3-coder:free",
+    name: "Qwen 3 Coder",
+    providerId: "openrouter",
+    capabilities: ['fast', 'code']
+  },
+  {
+    id: "tngtech/deepseek-r1t2-chimera:free",
+    name: "DeepSeek R1T2 Chimera",
+    providerId: "openrouter",
+    capabilities: ['fast', 'code', 'chat']
+  },
+  {
+    id: "z-ai/glm-4.5-air:free",
+    name: "GLM 4.5 Air",
+    providerId: "openrouter",
+    capabilities: ['fast', 'code', 'multilingual']
+  },
+  {
+    id: "google/gemini-flash-1.5",
+    name: "Gemini 1.5 Flash",
+    providerId: "openrouter",
+    capabilities: ['fast', 'creative', 'multilingual']
+  },
+  {
+    id: "openai/gpt-oss-20b:free",
+    name: "GPT-OSS 20B",
+    providerId: "openrouter",
+    capabilities: ['fast', 'creative', 'code']
+  },
 
-  // Best High-Performance Generalists (Programming & Design)
-  { id: "microsoft/mai-ds-r1:free", name: "Microsoft MAI DS R1", providerId: "openrouter", capabilities: ['code', 'creative'] },
-  { id: "deepseek/deepseek-chat-v3-0324:free", name: "DeepSeek V3", providerId: "openrouter", capabilities: ['code', 'creative'] },
+  // --- OpenRouter High-Performance Models ---
+  {
+    id: "microsoft/mai-ds-r1:free",
+    name: "Microsoft MAI DS R1",
+    providerId: "openrouter",
+    capabilities: ['code', 'creative', 'powerful']
+  },
+  {
+    id: "deepseek/deepseek-chat-v3-0324:free",
+    name: "DeepSeek V3",
+    providerId: "openrouter",
+    capabilities: ['code', 'creative', 'multilingual']
+  },
 
-  // Paid/Slower models
-  { id: "gpt-4o", name: "GPT-4o", providerId: "openai", capabilities: ['code', 'creative'] },
+  // --- OpenAI Models ---
+  {
+    id: "gpt-4o",
+    name: "GPT-4o",
+    providerId: "openai",
+    capabilities: ['code', 'creative', 'powerful', 'multilingual']
+  },
 
-  // Auto as a selectable option
-  { id: "openrouter/auto", name: "Auto (Smart Select)", providerId: "openrouter", capabilities: [] },
+  // --- Hugging Face Models ---
+  {
+    id: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+    name: "Mixtral 8x7B (HF)",
+    providerId: "huggingface",
+    capabilities: ['code', 'creative', 'multilingual']
+  },
+  {
+    id: "HuggingFaceH4/zephyr-7b-beta",
+    name: "Zephyr 7B (HF)",
+    providerId: "huggingface",
+    capabilities: ['fast', 'chat']
+  },
+
+  // --- Auto-Selection Models ---
+  {
+    id: "openrouter/auto",
+    name: "Auto (Smart Select)",
+    providerId: "openrouter",
+    capabilities: [] // No capabilities for auto
+  },
+  {
+    id: "huggingface/auto",
+    name: "Auto (Smart Select)",
+    providerId: "huggingface",
+    capabilities: [] // No capabilities for auto
+  },
 ];

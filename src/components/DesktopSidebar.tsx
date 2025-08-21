@@ -135,7 +135,7 @@ export function DesktopSidebar({
 
       <Separator />
 
-      <div className="p-4 flex items-center justify-between">
+      <div className="p-4 flex items-center justify-between gap-2">
         <Button variant="ghost" className="flex-1 justify-start text-left h-auto py-2" onClick={() => navigate('/settings')}>
           <div className="flex items-center gap-3">
             <User className="h-5 w-5 rounded-full" />

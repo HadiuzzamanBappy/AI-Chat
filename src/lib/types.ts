@@ -11,7 +11,7 @@ export interface Model {
   id: string;
   name: string;
   providerId: string;
-  capabilities: ('code' | 'fast' | 'creative')[]; // NEW
+  capabilities: ('code' | 'fast' | 'creative' | 'powerful' | 'chat' | 'multilingual')[]; // NEW
 }
 
 export interface KnowledgeFile {

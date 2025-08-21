@@ -5,11 +5,25 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, BrainCircuit, PlusCircle, Trash2, FileText, X, KeyRound, Eraser, Download, Settings as SettingsIcon } from "lucide-react";
+import { ArrowLeft, BrainCircuit, PlusCircle, Trash2, FileText, X, KeyRound, Eraser, Download, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useKnowledgebases } from "@/hooks/use-knowledgebases";
 import { toast } from "sonner";
+import { useAgents } from "@/hooks/use-agents";
+import { PROVIDERS } from "@/lib/data";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const MAX_WORDS = 1500;
 
@@ -21,17 +35,29 @@ export default function Settings() {
     updateKnowledgebase,
     setActiveKnowledgebase,
   } = useKnowledgebases();
+  const { agents, addAgent, updateAgent, deleteAgent } = useAgents();
 
-  const [openRouterKey, setOpenRouterKey] = useState('');
-  const [openAIKey, setOpenAIKey] = useState('');
+  const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
+  const [visibleApis, setVisibleApis] = useState<string[]>([]);
   const [feedDefaultKb, setFeedDefaultKb] = useState(() => {
     const saved = localStorage.getItem('feed_default_kb');
     return saved === null ? false : JSON.parse(saved);
   });
 
-  useEffect(() => {
-    setOpenRouterKey(localStorage.getItem('VITE_OPENROUTER_API_KEY') || '');
-    setOpenAIKey(localStorage.getItem('VITE_OPENAI_API_KEY') || '');
+   useEffect(() => {
+    const loadedKeys: Record<string, string> = {};
+    const initialVisible: string[] = [];
+    
+    PROVIDERS.forEach(provider => {
+      const storedKey = localStorage.getItem(provider.apiKeyEnvVar);
+      if (storedKey !== null) {
+        loadedKeys[provider.id] = storedKey;
+        initialVisible.push(provider.id);
+      }
+    });
+
+    setApiKeys(loadedKeys);
+    setVisibleApis(initialVisible);
   }, []);
 
   useEffect(() => {
@@ -39,11 +65,13 @@ export default function Settings() {
   }, [feedDefaultKb]);
 
   const handleSaveApiKeys = () => {
-    localStorage.setItem('VITE_OPENROUTER_API_KEY', openRouterKey);
-    localStorage.setItem('VITE_OPENAI_API_KEY', openAIKey);
-    toast.success("API Keys Saved", {
-      description: "Keys are stored locally in your browser.",
+    visibleApis.forEach(providerId => {
+      const provider = PROVIDERS.find(p => p.id === providerId);
+      if (provider) {
+        localStorage.setItem(provider.apiKeyEnvVar, apiKeys[providerId] || '');
+      }
     });
+    toast.success("API Keys Saved", { description: "Keys are stored locally in your browser." });
   };
 
   const handleClearHistory = () => {
@@ -105,6 +133,15 @@ export default function Settings() {
     }
   };
 
+  const apiProviders = PROVIDERS.map(provider => ({
+    ...provider,
+    key: apiKeys[provider.id] || '',
+    setKey: (value: string) => setApiKeys(prev => ({ ...prev, [provider.id]: value })),
+  }));
+  
+  const addedProviders = apiProviders.filter(p => visibleApis.includes(p.id));
+  const availableProviders = apiProviders.filter(p => !visibleApis.includes(p.id));
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto p-6 space-y-8">
@@ -118,162 +155,252 @@ export default function Settings() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}>
-          <Card>
-            <CardHeader>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
-                <div className="flex items-center space-x-3">
-                  <BrainCircuit className="h-6 w-6 text-primary" />
+          <Accordion type="single" collapsible className="w-full space-y-4">
+            <AccordionItem value="agents" className="border rounded-lg">
+              <AccordionTrigger className="px-6 py-4">
+                <div className="flex items-center space-x-3 text-left">
+                  <Bot className="h-6 w-6 text-primary" />
                   <div>
-                    <CardTitle>Knowledgebases</CardTitle>
-                    <CardDescription>Provide the AI with persistent context. Activate one to use it in all new chats.</CardDescription>
+                    <p className="font-semibold">Agent Management</p>
+                    <p className="text-sm text-muted-foreground font-normal">
+                      Create and customize AI personalities.
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2 shrink-0 self-end sm:self-center">
-                  <Label htmlFor="feed-default-kb" className="text-sm">Feed Default Context</Label>
-                  <Switch id="feed-default-kb" checked={feedDefaultKb} onCheckedChange={setFeedDefaultKb} />
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center gap-2">
-                <Input
-                  placeholder="New knowledgebase name..."
-                  value={newKbName}
-                  onChange={(e) => setNewKbName(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && newKbName.trim()) {
-                      addKnowledgebase(newKbName.trim());
-                      setNewKbName('');
-                    }
-                  }}
-                />
-                <Button
-                  onClick={() => {
-                    if (newKbName.trim()) {
-                      addKnowledgebase(newKbName.trim());
-                      setNewKbName('');
-                    }
-                  }}
-                  disabled={!newKbName.trim()}
-                >
-                  <PlusCircle className="h-4 w-4 mr-2" /> Add
-                </Button>
-              </div>
-              <AnimatePresence>
-                {knowledgebases.map((kb) => {
-                  const wordCount = kb.content.split(/\s+/).filter(Boolean).length;
-                  return (
-                    <motion.div key={kb.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <Card className="border bg-gray-500/10 shadow-sm">
-                        <CardHeader className="flex flex-row items-start justify-between">
-                          <div>
-                            <CardTitle>{kb.name}</CardTitle>
-                            <CardDescription>{kb.isActive ? "Active" : "Inactive"}</CardDescription>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <Switch
-                              checked={kb.isActive}
-                              onCheckedChange={(checked) => setActiveKnowledgebase(checked ? kb.id : null)}
-                            />
-                            <Button variant="ghost" size="icon" onClick={() => deleteKnowledgebase(kb.id)}>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-6 pt-2">
+                <div className="space-y-4">
+                  <Button onClick={addAgent} className="w-full">
+                    <PlusCircle className="h-4 w-4 mr-2" /> Add New Agent
+                  </Button>
+
+                  {/* Nested Accordion for the list of agents */}
+                  <Accordion type="single" collapsible className="w-full space-y-3">
+                    {agents.map((agent) => (
+                      <AccordionItem value={agent.id} key={agent.id} className="border rounded-md bg-background/50">
+                        <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                          <div className="flex items-center justify-between w-full">
+                            <div className="text-left">
+                              <p className="font-medium">{agent.name}</p>
+                              <p className="text-xs text-muted-foreground font-normal truncate max-w-[200px] sm:max-w-xs">
+                                {agent.description}
+                              </p>
+                            </div>
+                            <Button variant="ghost" size="icon" className="mr-2 shrink-0" onClick={(e) => { e.stopPropagation(); deleteAgent(agent.id); }}>
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4 space-y-4">
                           <div>
-                            <Label>Custom Instructions (Text)</Label>
-                            <Textarea
-                              placeholder="Tell the AI about your preferences..."
-                              value={kb.content}
-                              onChange={(e) => updateKnowledgebase(kb.id, { content: e.target.value })}
-                              className="mt-2 min-h-[120px]"
-                            />
-                            <p className={`text-xs mt-2 ${wordCount > MAX_WORDS ? 'text-destructive' : 'text-muted-foreground'}`}>
-                              {wordCount} / {MAX_WORDS} words
-                            </p>
-                          </div>
-                          <div>
-                            <Label>Attached Files</Label>
-                            <div className="mt-2 space-y-2">
-                              {kb.files.map(file => (
-                                <div key={file.name} className="flex items-center justify-between bg-background p-2 rounded-md">
-                                  <div className="flex items-center gap-2">
-                                    <FileText className="h-4 w-4" />
-                                    <span className="text-sm truncate">{file.name}</span>
-                                  </div>
-                                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFile(kb.id, file.name)}>
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                            <Button variant="outline" className="mt-2 w-full" onClick={() => fileInputRefs.current.get(kb.id)?.click()}>
-                              <PlusCircle className="h-4 w-4 mr-2" /> Add File
-                            </Button>
+                            <Label>Agent Name</Label>
                             <Input
-                              type="file"
-                              ref={(node) => {
-                                const map = fileInputRefs.current;
-                                if (node) {
-                                  map.set(kb.id, node);
-                                } else {
-                                  map.delete(kb.id);
-                                }
-                              }}
-                              className="hidden"
-                              multiple
-                              accept=".txt,.md,.json,.js,.ts,.tsx,.css"
-                              onChange={(e) => handleFileChange(e, kb.id)}
+                              value={agent.name}
+                              onChange={(e) => updateAgent(agent.id, { name: e.target.value })}
+                              placeholder="e.g., React Expert"
+                              className="mt-1"
                             />
                           </div>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </CardContent>
-          </Card>
-        </motion.div>
+                          <div>
+                            <Label>Description</Label>
+                            <Textarea
+                              value={agent.description}
+                              onChange={(e) => updateAgent(agent.id, { description: e.target.value })}
+                              placeholder="e.g., An expert in modern frontend development."
+                              className="mt-1"
+                              rows={2}
+                            />
+                          </div>
+                          <div>
+                            <Label>System Prompt</Label>
+                            <Textarea
+                              placeholder="Define the agent's personality and instructions..."
+                              value={agent.systemPrompt}
+                              onChange={(e) => updateAgent(agent.id, { systemPrompt: e.target.value })}
+                              className="mt-1 min-h-[140px]"
+                            />
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.3 } }}>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-3">
-                <KeyRound className="h-6 w-6 text-primary" />
-                <div>
-                  <CardTitle>API Key Management</CardTitle>
-                  <CardDescription>
-                    Securely store your API keys in local browser storage.
-                  </CardDescription>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="openrouter-key">OpenRouter API Key</Label>
-                <Input
-                  id="openrouter-key"
-                  type="password"
-                  value={openRouterKey}
-                  onChange={(e) => setOpenRouterKey(e.target.value)}
-                  placeholder="sk-or-..."
-                />
-              </div>
-              <div>
-                <Label htmlFor="openai-key">OpenAI API Key</Label>
-                <Input
-                  id="openai-key"
-                  type="password"
-                  value={openAIKey}
-                  onChange={(e) => setOpenAIKey(e.target.value)}
-                  placeholder="sk-..."
-                />
-              </div>
-              <Button onClick={handleSaveApiKeys}>Save API Keys</Button>
-            </CardContent>
-          </Card>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="knowledge" className="border rounded-lg">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                <div className="flex justify-between items-center w-full">
+                  <div className="flex items-center space-x-3 text-left">
+                    <BrainCircuit className="h-6 w-6 text-primary" />
+                    <div>
+                      <p className="font-semibold">Knowledgebases</p>
+                      <p className="text-sm text-muted-foreground font-normal">Provide the AI with persistent context.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2 mr-4" onClick={(e) => e.stopPropagation()}>
+                    <Label htmlFor="feed-default-kb" className="text-sm font-normal text-muted-foreground">Owner Context</Label>
+                    <Switch id="feed-default-kb" checked={feedDefaultKb} onCheckedChange={setFeedDefaultKb} />
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-6 pt-2 space-y-4">
+                <div className="flex items-center gap-2">
+                  <Input
+                    placeholder="New knowledgebase name..."
+                    value={newKbName}
+                    onChange={(e) => setNewKbName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && newKbName.trim()) {
+                        addKnowledgebase(newKbName.trim());
+                        setNewKbName('');
+                      }
+                    }}
+                  />
+                  <Button
+                    onClick={() => {
+                      if (newKbName.trim()) {
+                        addKnowledgebase(newKbName.trim());
+                        setNewKbName('');
+                      }
+                    }}
+                    disabled={!newKbName.trim()}
+                  >
+                    <PlusCircle className="h-4 w-4 mr-2" /> Add
+                  </Button>
+                </div>
+                <AnimatePresence>
+                  {knowledgebases.map((kb) => {
+                    const wordCount = kb.content.split(/\s+/).filter(Boolean).length;
+                    return (
+                      <motion.div key={kb.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        <Card className="border bg-gray-500/10 shadow-sm">
+                          <CardHeader className="flex flex-row items-start justify-between">
+                            <div>
+                              <CardTitle>{kb.name}</CardTitle>
+                              <CardDescription>{kb.isActive ? "Active" : "Inactive"}</CardDescription>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <Switch
+                                checked={kb.isActive}
+                                onCheckedChange={(checked) => setActiveKnowledgebase(checked ? kb.id : null)}
+                              />
+                              <Button variant="ghost" size="icon" onClick={() => deleteKnowledgebase(kb.id)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div>
+                              <Label>Custom Instructions (Text)</Label>
+                              <Textarea
+                                placeholder="Tell the AI about your preferences..."
+                                value={kb.content}
+                                onChange={(e) => updateKnowledgebase(kb.id, { content: e.target.value })}
+                                className="mt-2 min-h-[120px]"
+                              />
+                              <p className={`text-xs mt-2 ${wordCount > MAX_WORDS ? 'text-destructive' : 'text-muted-foreground'}`}>
+                                {wordCount} / {MAX_WORDS} words
+                              </p>
+                            </div>
+                            <div>
+                              <Label>Attached Files</Label>
+                              <div className="mt-2 space-y-2">
+                                {kb.files.map(file => (
+                                  <div key={file.name} className="flex items-center justify-between bg-background p-2 rounded-md">
+                                    <div className="flex items-center gap-2">
+                                      <FileText className="h-4 w-4" />
+                                      <span className="text-sm truncate">{file.name}</span>
+                                    </div>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFile(kb.id, file.name)}>
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                              <Button variant="outline" className="mt-2 w-full" onClick={() => fileInputRefs.current.get(kb.id)?.click()}>
+                                <PlusCircle className="h-4 w-4 mr-2" /> Add File
+                              </Button>
+                              <Input
+                                type="file"
+                                ref={(node) => {
+                                  const map = fileInputRefs.current;
+                                  if (node) {
+                                    map.set(kb.id, node);
+                                  } else {
+                                    map.delete(kb.id);
+                                  }
+                                }}
+                                className="hidden"
+                                multiple
+                                accept=".txt,.md,.json,.js,.ts,.tsx,.css"
+                                onChange={(e) => handleFileChange(e, kb.id)}
+                              />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="api-keys" className="border rounded-lg">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                 <div className="flex justify-between items-center w-full">
+                  <div className="flex items-center space-x-3 text-left">
+                    <KeyRound className="h-6 w-6 text-primary" />
+                    <div>
+                      <p className="font-semibold">API Key Management</p>
+                      <p className="text-sm text-muted-foreground font-normal">Store your API keys in local browser storage.</p>
+                    </div>
+                  </div>
+                  {availableProviders.length > 0 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="mr-4" onClick={(e) => e.stopPropagation()}>
+                          <PlusCircle className="h-4 w-4 mr-2" /> Add Key
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        {availableProviders.map((provider) => (
+                          <DropdownMenuItem key={provider.id} onSelect={() => setVisibleApis(prev => [...prev, provider.id])}>
+                            {provider.name}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-6 pt-2 space-y-4">
+                {addedProviders.map((provider) => (
+                  <div key={provider.id}>
+                    <div className="flex justify-between items-center mb-1">
+                      <Label htmlFor={`${provider.id}-key`}>{provider.name} API Key</Label>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
+                          provider.setKey('');
+                          localStorage.removeItem(provider.apiKeyEnvVar);
+                          setVisibleApis(prev => prev.filter(id => id !== provider.id));
+                          toast.info(`${provider.name} API Key removed.`);
+                        }}>
+                        <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                    </div>
+                    <Input id={`${provider.id}-key`} type="password" value={provider.key} onChange={(e) => provider.setKey(e.target.value)} placeholder="Enter your key..." />
+                  </div>
+                ))}
+                {addedProviders.length === 0 && (
+                   <p className="text-sm text-muted-foreground text-center py-4">No API keys added. Click "Add Key" to start.</p>
+                )}
+                {addedProviders.length > 0 && (
+                  <Button onClick={handleSaveApiKeys}>Save All Keys</Button>
+                )}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.4 } }}>

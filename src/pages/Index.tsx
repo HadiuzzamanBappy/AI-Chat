@@ -145,20 +145,30 @@ const Index = () => {
     if (isMobile) setSidebarOpen(false);
   };
 
-  const selectBestModel = (prompt: string): string => {
+    // This function is now provider-agnostic.
+  const selectBestModel = (prompt: string, providerId: string): string => {
     const lowerCasePrompt = prompt.toLowerCase();
     const codeKeywords = ['javascript', 'python', 'react', 'sql', 'function', 'component', '```', 'code'];
     const creativeKeywords = ['write', 'poem', 'story', 'idea', 'suggest', 'imagine'];
+
+    // First, filter the models to only include those from the requested provider
+    const modelsForProvider = AVAILABLE_MODELS.filter(m => m.providerId === providerId);
+
+    // Now, find the best model within that provider's list
     if (codeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
-      const codeModel = AVAILABLE_MODELS.find(m => m.providerId === 'openrouter' && m.capabilities.includes('code'));
+      const codeModel = modelsForProvider.find(m => m.capabilities.includes('code'));
       if (codeModel) return codeModel.id;
     }
     if (creativeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
-      const creativeModel = AVAILABLE_MODELS.find(m => m.providerId === 'openrouter' && m.capabilities.includes('creative'));
+      const creativeModel = modelsForProvider.find(m => m.capabilities.includes('creative'));
       if (creativeModel) return creativeModel.id;
     }
-    const fastModel = AVAILABLE_MODELS.find(m => m.providerId === 'openrouter' && m.capabilities.includes('fast'));
-    return fastModel ? fastModel.id : 'openrouter/auto';
+    
+    // Fallback to the fastest model for that provider
+    const fastModel = modelsForProvider.find(m => m.capabilities.includes('fast'));
+    
+    // If no suitable model is found, return the original "auto" id for that provider
+    return fastModel ? fastModel.id : `${providerId}/auto`;
   };
 
   const fetchApiResponse = async (conversationForApi: Conversation, messageHistory: ChatMessage[]) => {
@@ -166,14 +176,19 @@ const Index = () => {
     setIsTyping(true);
 
     let finalModelId = conversationForApi.modelId;
-    if (conversationForApi.modelId === 'openrouter/auto') {
+    if (finalModelId.endsWith('/auto')) {
+      // --- FIX #1: Select the first element after splitting ---
+      // This correctly extracts "openrouter" as a string from "openrouter/auto"
+      const providerId = finalModelId.split('/')[0]; 
+      
       const lastUserMessage = (() => {
         for (let i = messageHistory.length - 1; i >= 0; i--) {
           if (messageHistory[i].isUser) return messageHistory[i].content;
         }
         return "";
       })();
-      finalModelId = selectBestModel(lastUserMessage);
+
+      finalModelId = selectBestModel(lastUserMessage, providerId);
     }
 
     const model = AVAILABLE_MODELS.find(m => m.id === finalModelId);

@@ -10,8 +10,8 @@
     
     /* Chat Interface hsl(0, 0%, 90%) hsl(40, 100%, 48%) hsl(0, 0%, 100%) hsl(0, 0%, 95%)  hsl(212, 20%, 14%) */
     --chat-background: 0 0% 90%;
-    --chat-user-bubble: 40 100% 48%;
-    --chat-user-bubble-foreground: 0 0% 100%;
+    --chat-user-bubble: 40 100% 60%;
+    --chat-user-bubble-foreground: 0 0% 10%;
     --chat-assistant-bubble: 0 0% 95%;
     --chat-assistant-bubble-foreground: 212 20% 14%;
     
