@@ -15,6 +15,7 @@ hooks/
 ## 🪝 Custom Hooks Overview
 
 ### `use-agents.ts`
+
 **AI Agent Management Hook**
 
 Manages custom AI agents with specialized system prompts and behaviors.
@@ -24,6 +25,7 @@ const { agents, addAgent, updateAgent, deleteAgent } = useAgents();
 ```
 
 **Features:**
+
 - 🤖 **Agent CRUD Operations** - Create, read, update, and delete custom AI agents
 - 💾 **Persistent Storage** - Automatically syncs with localStorage
 - 🔄 **State Management** - Reactive state updates across components
@@ -31,6 +33,7 @@ const { agents, addAgent, updateAgent, deleteAgent } = useAgents();
 - 🎭 **Icon Support** - Associate icons with agents for UI display
 
 **Use Cases:**
+
 - Creating specialized AI assistants (coding, creative writing, analysis)
 - Managing agent libraries for different conversation contexts
 - Customizing AI behavior with specific system prompts
@@ -38,6 +41,7 @@ const { agents, addAgent, updateAgent, deleteAgent } = useAgents();
 ---
 
 ### `use-knowledgebases.ts`
+
 **Knowledge Base Management Hook**
 
 Handles knowledge base creation, management, and context injection for AI conversations.
@@ -53,6 +57,7 @@ const {
 ```
 
 **Features:**
+
 - 📚 **Knowledge Base CRUD** - Full lifecycle management of knowledge bases
 - 📄 **File Management** - Upload and manage multiple files per knowledge base
 - 🎯 **Context Activation** - Toggle knowledge bases for conversation context
@@ -60,6 +65,7 @@ const {
 - 📊 **Content Limits** - Word count validation and content optimization
 
 **Use Cases:**
+
 - Injecting domain-specific knowledge into AI conversations
 - Managing project documentation and context
 - Creating specialized knowledge domains for different topics
@@ -67,6 +73,7 @@ const {
 ---
 
 ### `use-mobile.ts`
+
 **Responsive Breakpoint Detection Hook**
 
 Provides consistent mobile/desktop detection across the application.
@@ -76,12 +83,14 @@ const isMobile = useIsMobile();
 ```
 
 **Features:**
+
 - 📱 **Breakpoint Detection** - Tracks viewport width against mobile breakpoint (768px)
 - 🎯 **Efficient Monitoring** - Uses matchMedia API for performant responsive tracking
 - 🔄 **Real-time Updates** - Automatically updates on viewport changes
 - ⚡ **Event-driven** - Lightweight event listeners for optimal performance
 
 **Use Cases:**
+
 - Conditional rendering for mobile vs desktop layouts
 - Responsive component behavior and interactions
 - Mobile-specific UI optimizations
@@ -89,6 +98,7 @@ const isMobile = useIsMobile();
 ---
 
 ### `use-toast.ts`
+
 **Toast Notification System Hook**
 
 Provides toast notification functionality using sonner toast library.
@@ -98,12 +108,14 @@ const { toast } = useToast();
 ```
 
 **Features:**
+
 - 📢 **Multiple Toast Types** - Success, error, warning, and info notifications
 - ⏰ **Auto-dismiss** - Configurable timeout and persistence options
 - 🎨 **Themed Styling** - Consistent with application design system
 - 🔗 **Action Support** - Interactive toasts with buttons and callbacks
 
 **Use Cases:**
+
 - User feedback for actions (save, delete, error states)
 - System notifications and status updates
 - Form validation and submission feedback
@@ -119,6 +131,7 @@ Each hook manages one specific concern (agents, knowledge bases, responsive stat
 Hooks that manage user data automatically persist to localStorage with proper serialization
 
 **⚡ Performance Optimized**
+
 - Minimal re-renders through selective state updates
 - Event-driven updates where applicable
 - Efficient data structures and operations
@@ -148,6 +161,7 @@ interface CRUDHook<T> {
 ### Storage Integration
 
 **localStorage Schema:**
+
 ```typescript
 // Storage keys used by hooks
 const STORAGE_KEYS = {
@@ -161,6 +175,7 @@ const STORAGE_KEYS = {
 ## 📚 Usage Guidelines
 
 ### Importing Hooks
+
 ```typescript
 import { useAgents } from '@/hooks/use-agents';
 import { useKnowledgebases } from '@/hooks/use-knowledgebases';
@@ -171,6 +186,7 @@ import { useToast } from '@/hooks/use-toast';
 ### Common Usage Patterns
 
 **Data Management Hooks:**
+
 ```typescript
 // Standard CRUD pattern
 const { items, add, update, delete } = useDataHook();
@@ -187,6 +203,7 @@ const handleUpdate = (id: string) => {
 ```
 
 **Utility Hooks:**
+
 ```typescript
 // Responsive behavior
 const isMobile = useIsMobile();
@@ -202,6 +219,7 @@ toast.success('Operation completed successfully!');
 ### Best Practices
 
 **✅ Hook Composition**
+
 ```typescript
 // Combine hooks for complex functionality
 const MyComponent = () => {
@@ -214,6 +232,7 @@ const MyComponent = () => {
 ```
 
 **✅ Error Handling**
+
 ```typescript
 // Proper error handling in hook usage
 const { agents, error } = useAgents();
@@ -224,6 +243,7 @@ if (error) {
 ```
 
 **✅ Performance Optimization**
+
 ```typescript
 // Selective subscription to hook data
 const { agents } = useAgents();
@@ -253,12 +273,14 @@ import { toast } from 'sonner'; // For user notifications
 ## 🧪 Testing Strategy
 
 ### Unit Testing
+
 - **State Updates** - Verify state changes correctly
 - **Side Effects** - Test localStorage integration and event listeners
 - **Error Conditions** - Handle edge cases and error states
 - **Performance** - Ensure minimal unnecessary re-renders
 
 ### Integration Testing
+
 - **Component Integration** - Test hooks within actual components
 - **Cross-Hook Communication** - Verify hooks work together properly
 - **Storage Persistence** - Test data persistence across sessions

@@ -21,12 +21,14 @@ pages/
 ### Core Application Pages
 
 #### `AppEntry.tsx`
+
 - **Purpose**: Main application entry point and routing hub
 - **Features**: Route management, authentication guards, layout structure
 - **Navigation**: Handles all client-side routing and page transitions
 - **State Management**: Global app state initialization
 
 #### `Index.tsx`
+
 - **Purpose**: Primary chat interface and home page
 - **Features**: AI conversation interface, message history, model selection
 - **Components Used**: Chat, ChatInput, Sidebar, ModelSelector
@@ -35,8 +37,9 @@ pages/
 ### Authentication Pages
 
 #### `Login.tsx`
+
 - **Purpose**: User sign-in interface with modern design
-- **Features**: 
+- **Features**:
   - Email/password authentication
   - Social login options (Google, Microsoft, Apple, Phone)
   - Password visibility toggle
@@ -46,6 +49,7 @@ pages/
 - **Navigation**: Links to registration and home pages
 
 #### `Register.tsx`
+
 - **Purpose**: User registration interface matching login design
 - **Features**:
   - Full user registration form (name, email, password, confirmation)
@@ -59,6 +63,7 @@ pages/
 ### Utility Pages
 
 #### `NotFound.tsx`
+
 - **Purpose**: 404 error page with professional design
 - **Features**:
   - Modern, animated error display
@@ -69,14 +74,16 @@ pages/
 - **UX**: Helpful navigation to get users back on track
 
 #### `OnBoard.tsx`
+
 - **Purpose**: User onboarding and welcome experience
 - **Features**: First-time user guidance, feature introduction
 - **Flow**: Step-by-step introduction to app capabilities
 - **Integration**: Smooth transition to main chat interface
 
 #### `Settings.tsx`
+
 - **Purpose**: Application settings and user preferences
-- **Features**: 
+- **Features**:
   - User account management
   - Theme preferences
   - AI model configurations
@@ -86,12 +93,14 @@ pages/
 ## 🎨 Design System Integration
 
 ### Consistent Styling
+
 - **Theme Support**: All pages fully support light/dark mode switching
 - **Component Library**: Built using shadcn/ui components for consistency
 - **Animation**: Framer Motion integration for smooth page transitions
 - **Typography**: Consistent font hierarchy and spacing throughout
 
 ### Layout Patterns
+
 - **Authentication Pages**: Centered card layout with backdrop blur
 - **Main Application**: Full-screen layouts with sidebars and navigation
 - **Error Pages**: Centered content with helpful navigation options
@@ -100,6 +109,7 @@ pages/
 ## 🔧 Technical Implementation
 
 ### Routing Integration
+
 ```typescript
 // Example routing structure
 const routes = [
@@ -113,12 +123,14 @@ const routes = [
 ```
 
 ### Authentication Flow
+
 1. **Public Pages**: Login, Register, NotFound
 2. **Protected Pages**: Index, Settings, OnBoard
 3. **Route Guards**: Automatic redirection based on auth status
 4. **State Persistence**: Login state maintained across sessions
 
 ### Performance Considerations
+
 - **Code Splitting**: Each page component supports lazy loading
 - **Bundle Optimization**: Pages are optimized for minimal bundle size
 - **Animation Performance**: Smooth 60fps animations with GPU acceleration
@@ -127,6 +139,7 @@ const routes = [
 ## 🚀 Usage Examples
 
 ### Adding a New Page
+
 ```typescript
 // 1. Create new page component
 export default function NewPage() {
@@ -143,6 +156,7 @@ export default function NewPage() {
 ```
 
 ### Page Navigation
+
 ```typescript
 // Using React Router navigation
 const navigate = useNavigate();
@@ -157,6 +171,7 @@ navigate('/', { replace: true });
 ## 📱 Responsive Design
 
 All pages are fully responsive and tested across:
+
 - **Desktop**: Full-featured layouts with sidebars
 - **Tablet**: Adapted layouts with collapsible elements
 - **Mobile**: Touch-friendly interfaces with optimized navigation
@@ -165,12 +180,14 @@ All pages are fully responsive and tested across:
 ## 🔐 Security Considerations
 
 ### Authentication Pages
+
 - **CSRF Protection**: Form submissions protected against CSRF attacks
 - **Input Validation**: Client and server-side validation
 - **Secure Redirects**: Safe redirect handling after authentication
 - **Password Security**: Secure password handling and validation
 
 ### Protected Routes
+
 - **Auth Guards**: Automatic redirection for unauthenticated users
 - **Token Management**: Secure handling of authentication tokens
 - **Session Management**: Proper session lifecycle management
@@ -178,6 +195,7 @@ All pages are fully responsive and tested across:
 ## 🧪 Testing Strategy
 
 Each page component includes:
+
 - **Unit Tests**: Component rendering and functionality
 - **Integration Tests**: Navigation and state management
 - **E2E Tests**: Complete user journey testing
