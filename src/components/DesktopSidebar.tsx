@@ -1,4 +1,7 @@
-// src/components/DesktopSidebar.tsx
+/**
+ * DesktopSidebar Component - Navigation and conversation management interface
+ * Handles agent selection, conversation history, and application navigation
+ */
 
 import { Plus, MessageSquare, Trash2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,15 +18,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+/** Props interface for DesktopSidebar component */
 interface DesktopSidebarProps {
-  conversations: Conversation[];
-  activeConversationId: string | null;
-  onNewChat: () => void;
-  onSelectConversation: (id: string) => void;
-  onDeleteConversation: (id: string) => void;
-  agents: Agent[]; // Use the dynamic list of agents from state
-  selectedAgentId: string;
-  onAgentChange: (agentId: string) => void;
+  conversations: Conversation[];                              // List of user conversations
+  activeConversationId: string | null;                       // Currently selected conversation ID
+  onNewChat: () => void;                                      // Handler for creating new conversation
+  onSelectConversation: (id: string) => void;                // Handler for selecting conversation
+  onDeleteConversation: (id: string) => void;                // Handler for deleting conversation
+  agents: Agent[];                                            // Available AI agents
+  selectedAgentId: string;                                    // Currently selected agent ID
+  onAgentChange: (agentId: string) => void;                   // Handler for agent selection
 }
 
 export function DesktopSidebar({
@@ -32,20 +36,23 @@ export function DesktopSidebar({
   onNewChat,
   onSelectConversation,
   onDeleteConversation,
-  agents, // Use the prop
+  agents,
   selectedAgentId,
   onAgentChange,
 }: DesktopSidebarProps) {
   const navigate = useNavigate();
 
+  // Get active agent with fallback to first available agent
   const activeAgent = agents.find(a => a.id === selectedAgentId) || agents[0];
 
+  /** Props interface for reusable list item component */
   type ListItemProps = {
     children: React.ReactNode;
     onClick: React.MouseEventHandler<HTMLDivElement>;
     isActive?: boolean;
   };
 
+  /** Reusable list item component with hover and active states */
   const ListItem = ({ children, onClick, isActive = false }: ListItemProps) => (
     <div
       className={`group flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium cursor-pointer transition-all duration-200 ${isActive
@@ -60,13 +67,13 @@ export function DesktopSidebar({
 
   return (
     <div className="flex flex-col h-full w-80 min-w-80 max-w-80 bg-sidebar-background border-r border-sidebar-border shadow-sm">
-      {/* Header */}
+      {/* Application header with branding */}
       <div className="p-6 border-b border-sidebar-border">
         <h1 className="text-lg font-bold text-sidebar-foreground truncate">Open LLM Chat</h1>
         <p className="text-sm text-muted-foreground truncate">Your intelligent assistant</p>
       </div>
 
-      {/* Agent Selection and New Chat */}
+      {/* Agent selection and new chat controls */}
       <div className="p-4 space-y-4">
         <div className="space-y-2">
           <label className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
@@ -100,6 +107,7 @@ export function DesktopSidebar({
           </Select>
         </div>
 
+        {/* Primary action button for starting new conversations */}
         <Button
           onClick={onNewChat}
           className="w-full justify-start bg-primary hover:bg-primary-hover text-primary-foreground border-0 rounded-lg h-11 font-medium shadow-md hover:shadow-lg transition-all duration-200"
@@ -111,7 +119,7 @@ export function DesktopSidebar({
 
       <Separator className="mx-4 bg-sidebar-border" />
 
-      {/* Conversation History */}
+      {/* Scrollable conversation history list */}
       <ScrollArea className="flex-1 min-w-0">
         <div className="p-4">
           <h2 className="mb-4 px-2 text-xs font-semibold text-muted-foreground tracking-wide uppercase truncate">
@@ -120,6 +128,7 @@ export function DesktopSidebar({
           <div className="space-y-2">
             {conversations.length > 0 ? (
               conversations.map((conversation) => {
+                // Get agent icon with fallback to default message icon
                 const agent = agents.find(a => a.id === conversation.agentId) || { icon: MessageSquare };
                 return (
                   <ListItem
@@ -137,6 +146,7 @@ export function DesktopSidebar({
                         </span>
                       </div>
                     </div>
+                    {/* Delete button with hover reveal animation */}
                     <Button
                       variant="ghost"
                       size="icon"
@@ -150,6 +160,7 @@ export function DesktopSidebar({
                 );
               })
             ) : (
+              // Empty state when no conversations exist
               <div className="px-3 py-8 text-center">
                 <MessageSquare className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">No conversations yet</p>
@@ -162,7 +173,7 @@ export function DesktopSidebar({
 
       <Separator className="mx-4 bg-sidebar-border" />
 
-      {/* Footer - Theme Toggle and Settings */}
+      {/* Footer with settings and theme controls */}
       <div className="p-4">
         <div className="flex items-center justify-between gap-3">
           <Button

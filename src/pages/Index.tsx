@@ -1,5 +1,12 @@
+/**
+ * Main Chat Interface Component
+ * 
+ * Primary chat interface managing conversations, AI models, agents,
+ * and real-time messaging with multiple AI providers.
+ * Handles conversation persistence, context management, and file attachments.
+ */
+
 import { useState, useEffect } from "react";
-// removed unused imports
 import { Sidebar } from "@/components/Sidebar";
 import { Chat } from "@/components/Chat";
 import { ChatInput } from "@/components/ChatInput";
@@ -8,11 +15,12 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { PROVIDERS, AVAILABLE_MODELS } from "@/lib/data";
 import { estimateTokens, getTokenLimit, trimMessagesToFit, calculateMessageTokens } from "@/lib/token-utils";
 import { type Conversation, type ChatMessage, type Agent } from "@/lib/types";
-import { AGENTS as DEFAULT_AGENTS } from "@/lib/agents"; // This contains the original agent data with icon components
+import { AGENTS as DEFAULT_AGENTS } from "@/lib/agents";
 import { defaultKnowledgebase } from '@/lib/default-knowledgebase';
 import { analyzeWithHuggingFace } from '@/lib/image-analysis';
 import { MessageSquare } from "lucide-react";
 
+/** File attachment structure for messages */
 interface FilePayload {
   name: string;
   content: string;
@@ -20,6 +28,7 @@ interface FilePayload {
   type?: string;
 }
 
+/** Initial payload from onboarding flow */
 interface InitialPayload {
   message: string | null;
   file: { 
@@ -28,26 +37,40 @@ interface InitialPayload {
   } | null;
 }
 
+/**
+ * Main Chat Interface
+ * 
+ * Core application component handling:
+ * - Multi-conversation management with persistence
+ * - AI model and provider switching
+ * - Custom agent selection for specialized responses  
+ * - File attachment and image analysis
+ * - Context management and token optimization
+ * - Real-time chat with typing indicators
+ */
 const Index = ({ initialPayloadFromOnboard = { message: null, file: null } }: { initialPayloadFromOnboard?: InitialPayload }) => {
+  // Core conversation state
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [isAppLoaded, setIsAppLoaded] = useState(false);
+  
+  // AI configuration state
   const [agents, setAgents] = useState<Agent[]>(DEFAULT_AGENTS);
   const [selectedAgentId, setSelectedAgentId] = useState<string>(DEFAULT_AGENTS[0].id);
   const [providerStatus, setProviderStatus] = useState<Record<string, 'ok' | 'limit_exceeded'>>({ 'openrouter': 'ok', 'openai': 'ok' });
   const [selectedModel, setSelectedModel] = useState<string>(AVAILABLE_MODELS[0].id);
+  
+  // UI state management
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const isMobile = useIsMobile();
   const [sendFullContext, setSendFullContext] = useState(true);
   
-  // Debug wrapper for full context toggle
+  /** Handle full context toggle with debug logging */
   const handleFullContextChange = (value: boolean) => {
     console.log('🔄 Full Context Toggle:', { from: sendFullContext, to: value });
     setSendFullContext(value);
   };
-  
-  // removed unused location and navigate
 
   useEffect(() => {
     const sendInitialPayload = async () => {

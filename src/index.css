@@ -1,21 +1,30 @@
+/**
+ * Global Styles & Design System
+ * 
+ * Comprehensive design system with light/dark theme support,
+ * custom CSS variables, and component styling for the AI Chat application.
+ * Uses Tailwind CSS with custom design tokens and animations.
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Main Interface Colors hsl(0, 0%, 100%) hsl(0, 0%, 5%) */
+    /* === LIGHT THEME === */
+    /* Main Interface Colors */
     --background: 0 0% 100%;
     --foreground: 0 0% 10%;
 
-    /* Chat Interface */
+    /* Chat Interface - Clean messaging experience */
     --chat-background: 0 0% 90%;
     --chat-user-bubble: 280 100% 70%;
     --chat-user-bubble-foreground: 0 0% 98%;
     --chat-assistant-bubble: 0 0% 95%;
     --chat-assistant-bubble-foreground: 212 20% 14%;
     
-    /* Sidebar */
+    /* Sidebar - Navigation and conversation history */
     --sidebar-background: 0 0% 96%;
     --sidebar-foreground: 212 20% 20%;
     --sidebar-border: 0 0% 88%;
@@ -23,7 +32,7 @@
     --sidebar-active: 280 100% 70% / 0.15;
     --sidebar-active-foreground: 0 0% 10%;
     
-    /* Interactive Elements */
+    /* Interactive Elements - Buttons and controls */
     --primary: 280 100% 70%;
     --primary-foreground: 0 0% 98%;
     --primary-hover: 280 100% 65%;
@@ -32,12 +41,12 @@
     --secondary-foreground: 0 0% 9%;
     --secondary-hover: 0 0% 92%;
     
-    /* Form Elements */
+    /* Form Elements - Inputs and selectors */
     --input: 0 0% 89.8%;
     --input-border: 0 0% 88%;
     --input-border-focus: 280 100% 70%;
     
-    /* Utility Colors */
+    /* Utility Colors - Status and feedback */
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
     --accent: 280 100% 95%;
@@ -47,21 +56,25 @@
     --border: 0 0% 89.8%;
     --ring: 280 100% 70%;
     
-    /* Animations */
+    /* Animation Timing - Smooth micro-interactions */
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-fast: all 0.15s ease-out;
     
+    /* UI Constants */
     --radius: 0.5rem;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
+    
+    /* Chart Colors - Data visualization */
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
+    /* Prose Styling - Code blocks and markdown */
     .prose {
       --tw-prose-pre-bg: #25250609;
       --tw-prose-invert-pre-bg: #0f0f0f3d;
@@ -69,18 +82,19 @@
   }
 
   .dark {
-    /* Main Interface Colors - Dark */
+    /* === DARK THEME === */
+    /* Main Interface Colors - Dark mode optimized */
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     
-    /* Chat Interface - Dark */
+    /* Chat Interface - Enhanced readability in dark mode */
     --chat-background: 212 25% 10%;
     --chat-user-bubble: 280 100% 75%;
     --chat-user-bubble-foreground: 0 0% 10%;
     --chat-assistant-bubble: 212 20% 15%;
     --chat-assistant-bubble-foreground: 210 40% 92%;
     
-    /* Sidebar - Dark */
+    /* Sidebar - Dark theme navigation */
     --sidebar-background: 212 25% 6%;
     --sidebar-foreground: 210 40% 75%;
     --sidebar-border: 212 20% 18%;
@@ -88,21 +102,21 @@
     --sidebar-active: 280 100% 75% / 0.2;
     --sidebar-active-foreground: 0 0% 100%;
     
-  /* Interactive Elements - Dark */
-  --primary: 280 100% 75%;
-  --primary-foreground: 0 0% 10%;
-  --primary-hover: 280 100% 70%;
+    /* Interactive Elements - Dark mode optimized */
+    --primary: 280 100% 75%;
+    --primary-foreground: 0 0% 10%;
+    --primary-hover: 280 100% 70%;
 
-  --secondary: 0 0% 14.9%;
-  --secondary-foreground: 0 0% 98%;
-  --secondary-hover: 212 20% 18%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --secondary-hover: 212 20% 18%;
 
-  /* Form Elements - Dark */
-  --input: 0 0% 14.9%;
-  --input-border: 212 20% 18%;
-  --input-border-focus: 280 100% 75%;
+    /* Form Elements - Dark mode inputs */
+    --input: 0 0% 14.9%;
+    --input-border: 212 20% 18%;
+    --input-border-focus: 280 100% 75%;
     
-    /* Utility Colors - Dark */
+    /* Utility Colors - Dark theme variants */
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
     --accent: 280 100% 20%;
@@ -115,6 +129,8 @@
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
+    
+    /* Chart Colors - Dark theme data visualization */
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -122,18 +138,19 @@
     --chart-5: 340 75% 55%;
   }
   
-  /* Universal border styling */
+  /* Universal border styling with CSS custom properties */
   * {
     @apply border-border;
   }
 
+  /* Base body styling with smooth theme transitions */
   body {
     @apply bg-background text-foreground antialiased;
     transition: var(--transition-smooth);
     font-family: 'Poppins', sans-serif;
   }
   
-  /* Scrollbar Styling */
+  /* Custom Scrollbar Styling - Minimal and theme-aware */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -153,7 +170,9 @@
 }
 
 @layer components {
-  /* Chat Bubble Animations */
+  /* === CUSTOM ANIMATIONS === */
+  
+  /* Chat Bubble Entry Animation - Smooth message appearance */
   .message-fade-in {
     animation: fadeInUp 0.3s ease-out;
   }
@@ -169,7 +188,7 @@
     }
   }
   
-  /* Typing Animation */
+  /* Typing Indicator Animation - AI thinking state */
   .typing-dots {
     animation: typing 1.4s infinite;
   }
@@ -179,12 +198,14 @@
     30% { opacity: 1; }
   }
   
-  /* Smooth Focus Styles */
+  /* === UTILITY COMPONENTS === */
+  
+  /* Consistent focus ring styling */
   .focus-ring {
     @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
   }
   
-  /* Line Clamp Utility */
+  /* Text overflow utility for conversation previews */
   .line-clamp-2 {
     overflow: hidden;
     display: -webkit-box;

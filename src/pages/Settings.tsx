@@ -1,3 +1,10 @@
+/**
+ * Settings Page Component
+ * 
+ * Comprehensive settings management interface for AI chat configuration.
+ * Handles API keys, knowledge bases, custom agents, and application preferences.
+ */
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,9 +35,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+/** Maximum word limit for knowledge base content */
 const MAX_WORDS = 1500;
 
+/**
+ * Main Settings Component
+ * 
+ * Provides tabbed interface for managing:
+ * - API key configuration for multiple providers
+ * - Knowledge base creation and management  
+ * - Custom AI agent definitions
+ * - Application preferences and defaults
+ */
 export default function Settings() {
+  // Knowledge base management hooks
   const {
     knowledgebases,
     addKnowledgebase,
@@ -38,10 +56,15 @@ export default function Settings() {
     updateKnowledgebase,
     setActiveKnowledgebase,
   } = useKnowledgebases();
+  
+  // AI agent management hooks  
   const { agents, addAgent, updateAgent, deleteAgent } = useAgents();
 
+  // API key storage and visibility state
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [visibleApis, setVisibleApis] = useState<string[]>([]);
+  
+  // Default knowledge base feeding preference
   const [feedDefaultKb, setFeedDefaultKb] = useState(() => {
     const saved = localStorage.getItem('feed_default_kb');
     return saved === null ? false : JSON.parse(saved);

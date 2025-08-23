@@ -1,7 +1,13 @@
-// src/lib/image-analysis.ts
+/**
+ * Image Analysis Service
+ * 
+ * Multi-provider image analysis with OpenAI Vision and Hugging Face models.
+ * Provides structured analysis results with object detection, text extraction, and descriptions.
+ */
 
 // Multiple Image Analysis APIs Integration
 
+/** Structured image analysis result interface */
 export interface ImageAnalysisResult {
   description: string;
   objects: string[];
@@ -12,9 +18,9 @@ export interface ImageAnalysisResult {
   confidence: number;
 }
 
-// 1. Google Vision API (Server-side - requires backend)
+/** Google Vision API analysis (requires backend endpoint for security) */
 export const analyzeWithGoogleVision = async (imageBase64: string): Promise<ImageAnalysisResult> => {
-  // This requires a backend endpoint due to CORS and API key security
+  // Backend endpoint required due to CORS and API key security
   const response = await fetch('/api/vision/google', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -23,7 +29,12 @@ export const analyzeWithGoogleVision = async (imageBase64: string): Promise<Imag
   return response.json();
 };
 
-// 2. OpenAI Vision API (Direct - works client-side with CORS)
+/** 
+ * OpenAI Vision API analysis with direct client-side integration
+ * 
+ * Analyzes images using GPT-4o vision capabilities with customizable prompts.
+ * Processes base64 images and returns structured analysis data.
+ */
 export const analyzeWithOpenAIVision = async (
   imageBase64: string, 
   apiKey: string, 
@@ -59,6 +70,7 @@ export const analyzeWithOpenAIVision = async (
     const data = await response.json();
     const description = data.choices[0]?.message?.content || 'No description available';
 
+    // Parse structured data from description
     return {
       description,
       objects: extractObjects(description),
@@ -74,24 +86,28 @@ export const analyzeWithOpenAIVision = async (
   }
 };
 
-// 3. Hugging Face Vision Models (Free Alternative)
+/** 
+ * Hugging Face Vision Models (Free Alternative)
+ * 
+ * Uses multiple Hugging Face models for comprehensive image analysis.
+ * Includes image validation, resizing, and multi-model processing.
+ */
 export const analyzeWithHuggingFace = async (imageBase64: string, fileName: string = 'image'): Promise<ImageAnalysisResult> => {
   try {
     console.log('🤖 Starting Hugging Face image analysis for:', fileName);
     
-    // Check image size (approximate)
+    // Validate image size (5MB limit)
     const imageSizeKB = (imageBase64.length * 3) / 4 / 1024;
-    if (imageSizeKB > 5000) { // 5MB limit
+    if (imageSizeKB > 5000) {
       console.warn('⚠️ Large image detected, this might cause issues:', imageSizeKB.toFixed(1) + 'KB');
     }
     
-    // Extract image type from base64
+    // Extract and validate image format
     const imageType = imageBase64.match(/data:image\/([a-zA-Z]*);base64,/)?.[1] || 'jpeg';
     let base64Data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '');
     
-    // Validate and clean base64 data
+    // Clean and validate base64 data
     try {
-      // Remove any whitespace and invalid characters
       base64Data = base64Data.replace(/[^A-Za-z0-9+/=]/g, '');
       
       // Add padding if necessary

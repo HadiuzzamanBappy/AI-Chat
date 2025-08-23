@@ -1,3 +1,8 @@
+/**
+ * ChatInput Component - Enhanced input interface for AI conversations
+ * Features file upload, drag-and-drop, model selection, and ChatGPT-like options
+ */
+
 import { useState, type KeyboardEvent, useRef, useEffect } from "react";
 import { Send, FileText, X, UploadCloud, Image, FileCode, FileSpreadsheet, File, Camera, GraduationCap, Palette, Brain, Search, MoreHorizontal, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +14,7 @@ import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
-// Enhanced configuration for allowed file types (like ChatGPT)
+// File upload configuration - supports comprehensive file types like ChatGPT
 const ALLOWED_FILE_TYPES = [
   // Text files
   'text/plain',
@@ -40,23 +45,25 @@ const ALLOWED_FILE_TYPES = [
 ];
 const ALLOWED_EXTENSIONS = ".txt, .md, .json, .js, .ts, .tsx, .css, .html, .xml, .csv, .pdf, .doc, .docx, .xls, .xlsx, .py, .java, .cpp, .c, .go, .rs, .php, .rb, .swift, .kt, .jpg, .jpeg, .png, .gif, .webp, .svg";
 
+/** Structure for attached file data */
 interface AttachedFile {
-  name: string;
-  content: string;
-  size?: number;
-  type?: string;
+  name: string;                     // Original filename
+  content: string;                  // File content (text or base64 for images)
+  size?: number;                    // File size in bytes
+  type?: string;                    // MIME type
 }
 
+/** Props interface for ChatInput component */
 interface ChatInputProps {
-  onSendMessage: (message: string, file?: AttachedFile) => void;
-  disabled?: boolean;
-  placeholder?: string;
-  models: Model[];
-  selectedModel: string;
-  onModelChange: (modelId: string) => void;
-  providerStatus: Record<string, 'ok' | 'limit_exceeded'>;
-  isFullContext: boolean; // Add this prop
-  onIsFullContextChange: (checked: boolean) => void; // Add this prop
+  onSendMessage: (message: string, file?: AttachedFile) => void;  // Message send handler
+  disabled?: boolean;                                              // Input disabled state
+  placeholder?: string;                                            // Textarea placeholder text
+  models: Model[];                                                 // Available AI models
+  selectedModel: string;                                           // Currently selected model
+  onModelChange: (modelId: string) => void;                       // Model change handler
+  providerStatus: Record<string, 'ok' | 'limit_exceeded'>;        // Provider availability status
+  isFullContext: boolean;                                          // Full context mode toggle
+  onIsFullContextChange: (checked: boolean) => void;              // Full context change handler
 }
 
 export function ChatInput({
@@ -67,17 +74,20 @@ export function ChatInput({
   selectedModel,
   onModelChange,
   providerStatus,
-  isFullContext, // Destructure the new prop
-  onIsFullContextChange, // Destructure the new prop
+  isFullContext,
+  onIsFullContextChange,
 }: ChatInputProps) {
-  const [message, setMessage] = useState("");
-  const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Component state management
+  const [message, setMessage] = useState("");                           // Current message text
+  const [attachedFile, setAttachedFile] = useState<AttachedFile | null>(null);  // Currently attached file
+  const [isDragging, setIsDragging] = useState(false);                  // Drag-and-drop state
+  const [showOptions, setShowOptions] = useState(false);                // Options menu visibility
+  
+  // Refs for DOM manipulation
+  const textareaRef = useRef<HTMLTextAreaElement>(null);                // Auto-resize textarea
+  const fileInputRef = useRef<HTMLInputElement>(null);                  // Hidden file input
 
-  // ChatGPT-like options
+  // ChatGPT-inspired quick action options
   const chatOptions = [
     {
       icon: Camera,
@@ -132,8 +142,12 @@ export function ChatInput({
     }
   ];
 
+  /**
+   * Validates uploaded files and processes them based on type
+   * Handles both text files and images with appropriate error handling
+   */
   const validateAndProcessFile = (file: File) => {
-    // Enhanced file validation with better extension checking
+    // Validate file type using extension fallback for better compatibility
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
     const isAllowed = ALLOWED_FILE_TYPES.includes(file.type) || 
                      ALLOWED_EXTENSIONS.toLowerCase().includes(fileExtension);
@@ -146,8 +160,8 @@ export function ChatInput({
       return;
     }
 
-    // Check file size (max 10MB like ChatGPT)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Enforce file size limit (10MB like ChatGPT)
+    const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       toast.error("File Too Large", {
         description: "Please upload a file smaller than 10MB.",
@@ -156,9 +170,9 @@ export function ChatInput({
       return;
     }
 
-    // Handle different file types
+    // Process file based on type
     if (file.type.startsWith('image/')) {
-      // For images, we'll read as data URL to display preview
+      // Images: read as data URL for preview
       const reader = new FileReader();
       reader.onload = (event) => {
         const content = event.target?.result as string;
@@ -172,7 +186,7 @@ export function ChatInput({
       };
       reader.readAsDataURL(file);
     } else {
-      // For text files, read as text
+      // Text files: read as plain text
       const reader = new FileReader();
       reader.onload = (event) => {
         const content = event.target?.result as string;
@@ -188,15 +202,17 @@ export function ChatInput({
     }
   };
 
+  /** Handles file selection from input element */
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       validateAndProcessFile(file);
     }
+    // Reset input to allow selecting same file again
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // --- REFACTORED Drag-and-Drop Handlers ---
+  // Drag-and-drop event handlers with improved UX
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -205,7 +221,7 @@ export function ChatInput({
   const handleDragEnter = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Check if dragged items are files
+    // Only show drag state if files are being dragged
     if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
       setIsDragging(true);
     }
@@ -214,7 +230,7 @@ export function ChatInput({
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // This logic helps prevent flickering when moving over child elements
+    // Prevent flickering when moving over child elements
     if (e.currentTarget.contains(e.relatedTarget as Node)) {
       return;
     }
@@ -231,6 +247,7 @@ export function ChatInput({
     }
   };
 
+  /** Handles message sending with validation */
   const handleSend = () => {
     if (!message.trim() && !attachedFile) return;
     onSendMessage(message.trim(), attachedFile || undefined);
@@ -238,6 +255,7 @@ export function ChatInput({
     setAttachedFile(null);
   };
 
+  /** Handles keyboard shortcuts for sending messages */
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -245,6 +263,7 @@ export function ChatInput({
     }
   };
 
+  // Effect: Auto-resize textarea based on content
   useEffect(() => {
     const textarea = textareaRef.current;
     if (textarea) {
@@ -253,7 +272,7 @@ export function ChatInput({
     }
   }, [message]);
 
-  // Close options menu when clicking outside
+  // Effect: Close options menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (showOptions && event.target instanceof Element && !event.target.closest('.options-container')) {
@@ -276,7 +295,7 @@ export function ChatInput({
       onDrop={handleDrop}
     >
       <div className="max-w-4xl mx-auto space-y-4">
-        {/* Header with Model Selector and Full Context Toggle */}
+        {/* Header: Model selector and context toggle */}
         <div className="flex items-center justify-between">
           <ModelSelector
             models={models}
@@ -305,7 +324,7 @@ export function ChatInput({
           </div>
         </div>
 
-        {/* Enhanced File Attachment Preview (ChatGPT-like) */}
+        {/* File attachment preview with enhanced UI */}
         {attachedFile && (
           <motion.div 
             initial={{ opacity: 0, y: -10 }}
@@ -315,7 +334,7 @@ export function ChatInput({
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3 min-w-0 flex-1">
-                {/* Dynamic File Icon based on type */}
+                {/* Dynamic file icon based on type */}
                 <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
                   attachedFile.type?.startsWith('image/') 
                     ? 'bg-gradient-to-br from-primary/20 to-primary/30' 
@@ -350,7 +369,7 @@ export function ChatInput({
                     )}
                   </div>
                   
-                  {/* File type indicator */}
+                  {/* File type indicator with smart detection */}
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-sidebar-foreground/70">
                       {attachedFile.type?.startsWith('image/') ? 'Image' 
@@ -364,7 +383,7 @@ export function ChatInput({
                        : 'Text File'}
                     </span>
                     
-                    {/* Processing indicator for large files */}
+                    {/* Processing status for large files */}
                     {attachedFile.size && attachedFile.size > 1024 * 1024 && (
                       <span className="text-xs text-primary flex items-center gap-1">
                         <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></div>
@@ -373,7 +392,7 @@ export function ChatInput({
                     )}
                   </div>
                   
-                  {/* Preview for images */}
+                  {/* Image preview for visual files */}
                   {attachedFile.type?.startsWith('image/') && attachedFile.content && (
                     <div className="mt-2">
                       <img 
@@ -386,6 +405,7 @@ export function ChatInput({
                 </div>
               </div>
               
+              {/* Remove attachment button */}
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -398,11 +418,11 @@ export function ChatInput({
           </motion.div>
         )}
 
-        {/* Input Area */}
+        {/* Main input area with enhanced functionality */}
         <div className="relative">
           <div className="flex items-end gap-3 bg-sidebar-hover/30 border border-sidebar-border rounded-2xl p-4 focus-within:ring-2 focus-within:ring-yellow-400/20 focus-within:border-yellow-400/30 transition-all duration-200">
             
-            {/* Options Button with Dropdown */}
+            {/* Quick options dropdown menu */}
             <div className="relative flex-shrink-0 options-container">
               <Button
                 variant="ghost"
@@ -414,7 +434,7 @@ export function ChatInput({
                 <Plus className="h-5 w-5" />
               </Button>
               
-              {/* Options Dropdown */}
+              {/* Animated options dropdown */}
               <AnimatePresence>
                 {showOptions && (
                   <motion.div
@@ -424,6 +444,7 @@ export function ChatInput({
                     className="absolute bottom-12 left-0 z-50 w-64 bg-sidebar-background border border-sidebar-border rounded-xl shadow-lg overflow-hidden"
                   >
                     <div className="p-2 space-y-1">
+                      {/* Quick action options */}
                       {chatOptions.map((option, index) => (
                         <Button
                           key={index}
@@ -452,7 +473,7 @@ export function ChatInput({
                         </Button>
                       ))}
                       
-                      {/* More options */}
+                      {/* Additional options placeholder */}
                       <div className="border-t border-sidebar-border pt-1 mt-1">
                         <Button
                           variant="ghost"
@@ -481,6 +502,7 @@ export function ChatInput({
               </AnimatePresence>
             </div>
 
+            {/* Hidden file input for upload functionality */}
             <input
               type="file"
               ref={fileInputRef}
@@ -489,6 +511,7 @@ export function ChatInput({
               onChange={handleFileChange}
             />
 
+            {/* Auto-resizing textarea with keyboard shortcuts */}
             <Textarea
               ref={textareaRef}
               value={message}
@@ -499,6 +522,7 @@ export function ChatInput({
               className="min-h-[24px] max-h-[200px] resize-none border-0 bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-sidebar-foreground/50"
             />
 
+            {/* Send button with gradient styling */}
             <Button
               onClick={handleSend}
               disabled={disabled || (!message.trim() && !attachedFile)}
@@ -509,13 +533,14 @@ export function ChatInput({
             </Button>
           </div>
           
-          {/* Subtle hint text */}
+          {/* Keyboard shortcut hints */}
           <p className="text-xs text-sidebar-foreground/60 mt-2 text-center">
             Press <kbd className="px-1.5 py-0.5 bg-sidebar-hover rounded text-xs font-mono">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 bg-sidebar-hover rounded text-xs font-mono">Shift+Enter</kbd> for new line
           </p>
         </div>
       </div>
 
+      {/* Drag-and-drop overlay with visual feedback */}
       {isDragging && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -529,6 +554,7 @@ export function ChatInput({
           <p className="text-sm text-sidebar-foreground/70 text-center px-4">
             Support for documents, code files, images and more
           </p>
+          {/* Supported file type indicators */}
           <div className="flex items-center gap-4 mt-4 text-xs text-sidebar-foreground/60">
             <div className="flex items-center gap-1">
               <FileText className="h-3 w-3" />

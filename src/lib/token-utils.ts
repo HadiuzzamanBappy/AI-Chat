@@ -1,13 +1,18 @@
-// src/lib/token-utils.ts
+/**
+ * Token Management Utilities
+ * 
+ * Handles token estimation, limits, and conversation trimming for AI models.
+ * Provides accurate token counting and smart message truncation to fit model limits.
+ */
 
 import type { ChatMessage } from './types';
 
-// Rough token estimation (1 token ≈ 4 characters for most models)
+/** Estimates token count using 4-character approximation */
 export const estimateTokens = (text: string): number => {
   return Math.ceil(text.length / 4);
 };
 
-// Token limits for different models
+/** Token limits for different AI models by provider */
 export const MODEL_TOKEN_LIMITS: Record<string, number> = {
   // OpenRouter models
   'mistralai/mistral-7b-instruct': 32000,
@@ -30,19 +35,26 @@ export const MODEL_TOKEN_LIMITS: Record<string, number> = {
   'default': 4096
 };
 
+/** Returns token limit for specified model */
 export const getTokenLimit = (modelId: string): number => {
   return MODEL_TOKEN_LIMITS[modelId] || MODEL_TOKEN_LIMITS.default;
 };
 
+/** 
+ * Calculates total tokens for message array including attachments
+ * 
+ * Images use conservative 1000 token estimate per attachment.
+ * Text files add their actual content length in tokens.
+ */
 export const calculateMessageTokens = (messages: ChatMessage[]): number => {
   return messages.reduce((total, message) => {
     let tokens = estimateTokens(message.content);
     
-    // Add tokens for attached files (images are much more expensive)
+    // Add tokens for attached files with type-specific calculations
     if (message.attachedFile && message.attachedFile.type) {
       if (message.attachedFile.type.startsWith('image/')) {
-        // Images can use 85-170 tokens per tile (roughly 512x512 pixels)
-        tokens += 1000; // Conservative estimate for image processing
+        // Images use 85-170 tokens per 512x512 tile - conservative estimate
+        tokens += 1000;
       } else {
         // Text files add their content length
         tokens += estimateTokens(message.attachedFile.content || '');
@@ -53,16 +65,22 @@ export const calculateMessageTokens = (messages: ChatMessage[]): number => {
   }, 0);
 };
 
+/**
+ * Trims message history to fit within token limits
+ * 
+ * Preserves recent messages and handles oversized final messages by truncation.
+ * Reserves space for system prompts and maintains conversation context.
+ */
 export const trimMessagesToFit = (
   messages: ChatMessage[], 
   maxTokens: number,
-  systemPromptTokens: number = 1000 // Reserve space for system prompt
+  systemPromptTokens: number = 1000
 ): ChatMessage[] => {
   const availableTokens = maxTokens - systemPromptTokens;
   let currentTokens = 0;
   const trimmedMessages: ChatMessage[] = [];
   
-  // Start from the end (most recent) and work backwards
+  // Process messages from most recent backwards
   for (let i = messages.length - 1; i >= 0; i--) {
     const message = messages[i];
     const messageTokens = calculateMessageTokens([message]);
@@ -71,13 +89,12 @@ export const trimMessagesToFit = (
       trimmedMessages.unshift(message);
       currentTokens += messageTokens;
     } else {
-      // If this is the very last message and it's too big, we need to handle it
+      // Handle oversized final message by truncating content
       if (i === messages.length - 1) {
-        // Try to truncate the content while keeping the attachment info
         const truncatedMessage = { ...message };
         if (message.attachedFile) {
-          // Keep the attachment but truncate the text content
-          const maxContentLength = (availableTokens - 1000) * 4; // Convert back to chars
+          // Preserve attachment but truncate text content
+          const maxContentLength = (availableTokens - 1000) * 4;
           if (message.content.length > maxContentLength) {
             truncatedMessage.content = message.content.substring(0, maxContentLength) + '... [truncated]';
           }

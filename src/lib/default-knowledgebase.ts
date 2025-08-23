@@ -1,5 +1,13 @@
+/**
+ * Default Knowledge Base Configuration
+ * 
+ * Predefined personal context and preferences for consistent AI interactions.
+ * Provides baseline information about user expertise and preferences.
+ */
+
 import { type Knowledgebase } from "./types";
 
+/** Default personal context knowledge base with user preferences and expertise */
 export const defaultKnowledgebase: Knowledgebase = {
     id: 'default-kb-1',
     name: 'Default Personal Context',

@@ -1,4 +1,7 @@
-// src/components/chat.tsx
+/**
+ * Chat Component - Main interface for AI conversations
+ * Handles message display, typing indicators, auto-scrolling, and user interactions
+ */
 
 import { useEffect, useRef, useState } from "react";
 import { Message } from "./Message";
@@ -9,8 +12,10 @@ import { Bot } from "lucide-react";
 import { type Conversation, type ChatMessage } from "@/lib/types";
 import { AGENTS } from "@/lib/agents";
 
-// --- NEW: A custom hook to get the previous value of a prop or state ---
-// This is a standard and robust way to handle state transitions.
+/**
+ * Custom hook to track previous value of state/props
+ * Essential for detecting state transitions without causing re-renders
+ */
 function usePrevious<T>(value: T): T | undefined {
   const ref = useRef<T>(undefined);
   useEffect(() => {
@@ -19,73 +24,78 @@ function usePrevious<T>(value: T): T | undefined {
   return ref.current;
 }
 
-// Interface for the component's props
+/** Props interface for Chat component */
 interface ChatProps {
-  messages: ChatMessage[];
-  isTyping?: boolean;
-  onSendMessage: (message: string) => void;
-  onDeleteMessage: (messageId: string) => void;
-  onRerunMessage: (messageId: string) => void;
-  onEditMessage?: (messageId: string, newContent: string) => void;
-  activeConversation: Conversation | undefined;
+  messages: ChatMessage[];                                    // Array of conversation messages
+  isTyping?: boolean;                                         // AI response generation indicator
+  onSendMessage: (message: string) => void;                  // Handler for new user messages
+  onDeleteMessage: (messageId: string) => void;              // Handler for message deletion
+  onRerunMessage: (messageId: string) => void;               // Handler for message re-execution
+  onEditMessage?: (messageId: string, newContent: string) => void;  // Optional message editing handler
+  activeConversation: Conversation | undefined;               // Current conversation context
 }
 
 export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessage, onRerunMessage, onEditMessage, activeConversation }: ChatProps) {
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
-  const isEditingRef = useRef(false);
+  // Refs for DOM manipulation and state tracking
+  const messagesEndRef = useRef<HTMLDivElement>(null);     // Reference for auto-scrolling to bottom
+  const chatContainerRef = useRef<HTMLDivElement>(null);   // Reference for resize observation
+  const isEditingRef = useRef(false);                      // Tracks editing state without re-renders
   
-  const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(null);
-  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
-  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+  // Component state management
+  const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(null);  // Controls message entrance animations
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);      // Tracks currently edited message
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);                   // Controls auto-scroll behavior
 
-  // --- THE FIX: Use our new custom hook to reliably get the previous typing state ---
+  // Track previous typing state to detect AI response completion
   const prevIsTyping = usePrevious(isTyping);
 
+  // Get active agent with fallback to first agent
   const activeAgent = AGENTS.find(agent => agent.id === activeConversation?.agentId) || AGENTS[0];
 
+  /**
+   * Manages auto-scroll behavior during message editing
+   * Prevents UI jumping by disabling scroll when user edits messages
+   */
   const handleEditStateChange = (messageId: string, isEditing: boolean) => {
     isEditingRef.current = isEditing;
     
     if (isEditing) {
-      // Completely disable auto-scroll when editing starts
+      // Disable auto-scroll when editing starts to maintain user focus
       setAutoScrollEnabled(false);
       setEditingMessageId(messageId);
     } else {
-      // Keep auto-scroll disabled for longer after edit ends
+      // Re-enable auto-scroll after editing with delay to ensure state sync
       setTimeout(() => {
         setEditingMessageId(null);
         isEditingRef.current = false;
-        // Re-enable auto-scroll only after a safe delay
         setTimeout(() => setAutoScrollEnabled(true), 100);
-      }, 500); // Longer delay before clearing edit state
+      }, 500);
     }
   };
 
-  // This effect now correctly detects the transition to trigger the animation.
+  // Effect: Trigger message entrance animation when AI finishes responding
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
     
-    // The condition is now clear and reliable:
-    // "If the previous state was typing, and the current state is NOT typing..."
+    // Detect transition from typing to not typing for animation trigger
     if (prevIsTyping === true && !isTyping && lastMessage && !lastMessage.isUser) {
       setAnimatingMessageId(lastMessage.id);
     }
-  }, [isTyping, messages, prevIsTyping]); // Add prevIsTyping to dependency array
+  }, [isTyping, messages, prevIsTyping]);
 
 
-  // This effect for auto-scrolling is correct and remains unchanged.
+  // Effect: Intelligent auto-scroll management
   useEffect(() => {
-    // Don't auto-scroll if auto-scroll is disabled or if editing
+    // Skip auto-scroll if disabled or user is editing
     if (!autoScrollEnabled || isEditingRef.current || editingMessageId) return;
     
     const scrollToBottom = () => {
-      // Triple check before scrolling
+      // Double-check scroll conditions before executing
       if (!autoScrollEnabled || isEditingRef.current) return;
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
     
-    // Small delay to ensure edit state is properly set
+    // Delay scroll to ensure DOM updates are complete
     const timeoutId = setTimeout(scrollToBottom, 10);
     
     const container = chatContainerRef.current;
@@ -94,6 +104,7 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
       return;
     }
     
+    // Observe container resizing and scroll accordingly
     const observer = new ResizeObserver(() => {
       if (autoScrollEnabled && !isEditingRef.current) {
         scrollToBottom();
@@ -101,6 +112,7 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
     });
     observer.observe(container);
     
+    // Cleanup on effect dependencies change
     return () => {
       clearTimeout(timeoutId);
       observer.disconnect();
@@ -108,8 +120,8 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
   }, [messages, isTyping, editingMessageId, autoScrollEnabled]);
 
 
+  /** Animated typing indicator component for AI response generation */
   const TypingIndicator = () => (
-    // This component remains unchanged.
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -123,6 +135,7 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
         <div className="rounded-2xl px-4 py-3 bg-chat-assistant-bubble text-chat-assistant-bubble-foreground">
           <div className="flex items-center space-x-1">
             <span>Thinking</span>
+            {/* Animated dots with staggered timing */}
             {[0, 1, 2].map((i) => (
               <motion.div
                 key={i}
@@ -141,7 +154,7 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
     <div className="relative flex-1 bg-chat-background">
       <div className="absolute inset-0 overflow-y-auto overflow-x-hidden pb-4 pt-4">
         
-        {/* Chat Header */}
+        {/* Agent header with icon, name, and description */}
         <div className="text-center mb-4 p-2">
           <div className="inline-flex items-center justify-center bg-secondary p-3 rounded-full mb-2">
             <activeAgent.icon className="h-6 w-6 text-foreground" />
@@ -150,6 +163,7 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
           <p className="text-sm text-muted-foreground">{activeAgent.description}</p>
         </div>
         
+        {/* Conditional rendering: starter templates for empty chat, messages for active chat */}
         {messages.length === 0 ? (
           <StarterTemplates starters={starterTemplates} onSelectStarter={onSendMessage} />
         ) : (
@@ -157,6 +171,7 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
             ref={chatContainerRef}
             className="max-w-4xl mx-auto px-md-4"
           >
+            {/* Render all messages with animation and interaction handlers */}
             {messages.map((message) => (
               <Message
                 key={message.id}
@@ -172,7 +187,9 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
                 imageAnalysis={message.imageAnalysis}
               />
             ))}
+            {/* Show typing indicator when AI is generating response */}
             {isTyping && <TypingIndicator />}
+            {/* Invisible div for auto-scroll targeting */}
             <div ref={messagesEndRef} />
           </motion.div>
         )}

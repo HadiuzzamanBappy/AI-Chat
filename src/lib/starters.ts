@@ -1,7 +1,13 @@
-// src/lib/starters.ts
+/**
+ * Conversation Starter Templates
+ * 
+ * Predefined prompt templates for common development and design tasks.
+ * Provides quick-start options for React components, SQL optimization, and UI/UX reviews.
+ */
 
 import { Code, Database, Brush, GitMerge } from "lucide-react";
 
+/** Starter template interface with prompt and metadata */
 export interface Starter {
     title: string;
     description: string;
@@ -9,6 +15,7 @@ export interface Starter {
     icon: React.ElementType;
 }
 
+/** Predefined conversation starters for common professional tasks */
 export const starterTemplates: Starter[] = [
     {
         title: "Create React Component",

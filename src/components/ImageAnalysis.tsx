@@ -1,3 +1,8 @@
+/**
+ * ImageAnalysis Component - AI-powered visual understanding interface
+ * Provides image analysis functionality with loading states and error handling
+ */
+
 import { useState } from 'react';
 import { Eye, Sparkles, FileImage, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,9 +11,12 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Mock analysis function - replace with actual API call
+/**
+ * Mock analysis function - simulates AI image analysis API
+ * In production, replace with actual API integration
+ */
 const analyzeImage = async (_imageUrl: string): Promise<AnalysisResult> => {
-  // Simulate API delay
+  // Simulate realistic API delay
   await new Promise(resolve => setTimeout(resolve, 2000));
   
   return {
@@ -24,19 +32,21 @@ const analyzeImage = async (_imageUrl: string): Promise<AnalysisResult> => {
   };
 };
 
+/** Props interface for ImageAnalysis component */
 interface ImageAnalysisProps {
-  imageUrl: string;
-  imageName?: string;
-  onAnalysisComplete?: (analysis: string) => void;
-  className?: string;
+  imageUrl: string;                                     // URL or data URL of image to analyze
+  imageName?: string;                                   // Display name for the image
+  onAnalysisComplete?: (analysis: string) => void;      // Callback when analysis finishes
+  className?: string;                                   // Additional CSS classes
 }
 
+/** Structure of AI analysis results */
 interface AnalysisResult {
-  description: string;
-  objects: string[];
-  colors: string[];
-  mood: string;
-  technical: {
+  description: string;                                  // Main description of image content
+  objects: string[];                                    // Detected objects/elements
+  colors: string[];                                     // Dominant colors identified
+  mood: string;                                         // Emotional tone/atmosphere
+  technical: {                                          // Technical image metadata
     dimensions?: string;
     format?: string;
     quality?: string;
@@ -49,10 +59,12 @@ export function ImageAnalysis({
   onAnalysisComplete,
   className = '' 
 }: ImageAnalysisProps) {
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Component state management
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);    // Analysis results
+  const [isAnalyzing, setIsAnalyzing] = useState(false);                    // Loading state
+  const [error, setError] = useState<string | null>(null);                  // Error state
 
+  /** Handles image analysis with error handling and loading states */
   const handleAnalyze = async () => {
     if (!imageUrl) return;
 
@@ -62,6 +74,7 @@ export function ImageAnalysis({
     try {
       const result = await analyzeImage(imageUrl);
       setAnalysis(result);
+      // Notify parent component with stringified results
       if (onAnalysisComplete) {
         onAnalysisComplete(JSON.stringify(result, null, 2));
       }
@@ -72,6 +85,7 @@ export function ImageAnalysis({
     }
   };
 
+  // Animation variants for smooth transitions
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
@@ -100,7 +114,7 @@ export function ImageAnalysis({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          {/* Image Preview */}
+          {/* Image preview with overlay badge */}
           <div className="relative">
             <div className="aspect-video bg-muted rounded-lg overflow-hidden border border-border/30">
               <img 
@@ -119,7 +133,7 @@ export function ImageAnalysis({
             </Badge>
           </div>
 
-          {/* Analyze Button */}
+          {/* Analysis trigger - primary action button with loading states */}
           {!analysis && !error && (
             <Button 
               onClick={handleAnalyze}
@@ -140,7 +154,7 @@ export function ImageAnalysis({
             </Button>
           )}
 
-          {/* Error State */}
+          {/* Error state with detailed feedback and retry functionality */}
           {error && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -163,7 +177,7 @@ export function ImageAnalysis({
             </motion.div>
           )}
 
-          {/* Analysis Results */}
+          {/* Comprehensive analysis results with smooth animations */}
           <AnimatePresence>
             {analysis && (
               <motion.div
@@ -172,13 +186,13 @@ export function ImageAnalysis({
                 exit={{ opacity: 0, y: -20 }}
                 className="space-y-4"
               >
-                {/* Success Header */}
+                {/* Success indicator - confirmation of completed analysis */}
                 <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg">
                   <CheckCircle className="h-4 w-4 text-primary" />
                   <p className="text-sm font-medium text-primary">Analysis Complete</p>
                 </div>
 
-                {/* Description */}
+                {/* Primary description - main AI interpretation of the image */}
                 <div className="space-y-2">
                   <h4 className="font-semibold text-foreground">Description</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
@@ -188,7 +202,7 @@ export function ImageAnalysis({
 
                 <Separator />
 
-                {/* Objects Detected */}
+                {/* Object detection results - identified elements in the image */}
                 {analysis.objects.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="font-semibold text-foreground">Objects Detected</h4>
@@ -206,7 +220,7 @@ export function ImageAnalysis({
                   </div>
                 )}
 
-                {/* Colors */}
+                {/* Visual color palette analysis */}
                 {analysis.colors.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="font-semibold text-foreground">Dominant Colors</h4>
@@ -220,7 +234,7 @@ export function ImageAnalysis({
                   </div>
                 )}
 
-                {/* Mood/Atmosphere */}
+                {/* Emotional and atmospheric interpretation */}
                 {analysis.mood && (
                   <div className="space-y-2">
                     <h4 className="font-semibold text-foreground">Mood & Atmosphere</h4>
@@ -230,7 +244,7 @@ export function ImageAnalysis({
                   </div>
                 )}
 
-                {/* Technical Details */}
+                {/* Technical image metadata and properties */}
                 {Object.keys(analysis.technical).length > 0 && (
                   <div className="space-y-2">
                     <h4 className="font-semibold text-foreground">Technical Details</h4>
@@ -257,7 +271,7 @@ export function ImageAnalysis({
                   </div>
                 )}
 
-                {/* Analyze Again Button */}
+                {/* Re-analysis option - allows users to get fresh analysis */}
                 <Button 
                   onClick={handleAnalyze}
                   variant="outline"

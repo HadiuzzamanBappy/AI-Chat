@@ -1,8 +1,13 @@
-// src/lib/data.ts
+/**
+ * AI Model and Provider Configuration
+ * 
+ * Central registry of available AI providers and models with capabilities.
+ * Supports multiple API providers and model categorization for smart selection.
+ */
 
 import { type Provider, type Model } from './types';
 
-// Central definition for all API providers
+/** API provider configurations with endpoints and authentication */
 export const PROVIDERS: Provider[] = [
   {
     id: 'openrouter',
@@ -18,8 +23,9 @@ export const PROVIDERS: Provider[] = [
   }
 ];
 
+/** Available AI models organized by provider with capability tagging */
 export const AVAILABLE_MODELS: Model[] = [
-  // --- OpenRouter Free & Fast Models ---
+  // OpenRouter Free & Fast Models - Optimized for speed and basic tasks
   {
     id: "mistralai/mistral-7b-instruct",
     name: "Mistral 7B",
@@ -63,7 +69,7 @@ export const AVAILABLE_MODELS: Model[] = [
     capabilities: ['fast', 'creative', 'code']
   },
 
-  // --- OpenRouter High-Performance Models ---
+  // OpenRouter High-Performance Models - Advanced capabilities
   {
     id: "microsoft/mai-ds-r1:free",
     name: "Microsoft MAI DS R1",
@@ -83,7 +89,7 @@ export const AVAILABLE_MODELS: Model[] = [
     capabilities: ['fast', 'creative', 'multilingual', 'vision', 'files']
   },
 
-  // --- OpenAI Models ---
+  // OpenAI Models - Premium capabilities with vision and file support
   {
     id: "gpt-4o",
     name: "GPT-4o",
@@ -97,11 +103,11 @@ export const AVAILABLE_MODELS: Model[] = [
     capabilities: ['fast', 'code', 'creative', 'vision', 'files']
   },
 
-  // --- Auto-Selection Models ---
+  // Auto-Selection Models - Intelligent routing based on request type
   {
     id: "openrouter/auto",
     name: "Auto (Smart Select)",
     providerId: "openrouter",
-    capabilities: ['vision', 'files'] // Auto should support files
+    capabilities: ['vision', 'files']
   },
 ];

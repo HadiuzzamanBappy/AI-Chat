@@ -1,22 +1,33 @@
+/**
+ * useAgents Hook
+ * 
+ * Manages AI agent configuration with localStorage persistence.
+ * Handles CRUD operations for custom agents while preserving default agents.
+ */
+
 import { useState, useEffect } from 'react';
-import { type Agent } from '@/lib/types'; // Uses your updated Agent type
+import { type Agent } from '@/lib/types';
 import { AGENTS as DEFAULT_AGENTS } from '@/lib/agents';
 import { Bot } from 'lucide-react';
 import { toast } from "sonner";
 
-// Create a map of default icons for easy "rehydration."
-// --- THE FIX: Explicitly type the accumulator ('acc') in the reduce function ---
+/** Icon mapping for agent rehydration from localStorage */
 const ICON_MAP = DEFAULT_AGENTS.reduce((acc: Record<string, React.ElementType>, agent) => {
   acc[agent.id] = agent.icon;
   return acc;
-}, {}); // The initial value is still an empty object, but its type is now known.
+}, {});
 
-
+/**
+ * Agent Management Hook
+ * 
+ * Provides persistent agent storage with icon rehydration and CRUD operations.
+ * Maintains backwards compatibility with default agents.
+ */
 export function useAgents() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Effect to load agents from localStorage on initial render
+  // Effect: Load agents from localStorage with icon rehydration
   useEffect(() => {
     try {
       const savedAgentsJSON = localStorage.getItem("chat_agents");
@@ -25,6 +36,7 @@ export function useAgents() {
       if (savedAgentsJSON) {
         const parsedAgents: Omit<Agent, 'icon'>[] = JSON.parse(savedAgentsJSON);
         
+        // Rehydrate icons from ICON_MAP since functions can't be serialized
         loadedAgents = parsedAgents.map(savedAgent => ({
           ...savedAgent,
           icon: ICON_MAP[savedAgent.id] || Bot,
@@ -40,7 +52,7 @@ export function useAgents() {
     setIsLoaded(true);
   }, []);
 
-  // Effect to save agents to localStorage whenever they change
+  // Effect: Save agents to localStorage (excluding non-serializable icons)
   useEffect(() => {
     if (!isLoaded) return;
     try {
@@ -51,6 +63,7 @@ export function useAgents() {
     }
   }, [agents, isLoaded]);
 
+  /** Creates new custom agent with default configuration */
   const addAgent = () => {
     const newAgent: Agent = {
       id: `custom-${Date.now()}`,
@@ -63,6 +76,7 @@ export function useAgents() {
     toast.success("New agent created!");
   };
 
+  /** Updates existing agent properties (excluding id and icon) */
   const updateAgent = (agentId: string, updatedData: Partial<Omit<Agent, 'id' | 'icon'>>) => {
     setAgents(prev =>
       prev.map(agent =>
@@ -71,6 +85,7 @@ export function useAgents() {
     );
   };
 
+  /** Deletes agent with confirmation (prevents deleting last agent) */
   const deleteAgent = (agentId: string) => {
     if (agents.length <= 1) {
       toast.error("Cannot delete the last agent.");

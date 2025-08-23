@@ -1,8 +1,14 @@
-// src/lib/agents.ts
+/**
+ * AI Agents Configuration
+ * 
+ * Default agent definitions with specialized system prompts and capabilities.
+ * Provides predefined personas for different use cases and expertise areas.
+ */
 
 import { Code, Bot, BrainCircuit } from 'lucide-react';
 import { type Agent } from './types';
 
+/** Predefined AI agents with specialized capabilities and system prompts */
 export const AGENTS: Agent[] = [
   {
     id: 'default',

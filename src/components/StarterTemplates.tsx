@@ -1,14 +1,30 @@
-// src/components/StarterTemplates.tsx
+/**
+ * StarterTemplates Component
+ * 
+ * Interactive template grid that displays predefined conversation starters.
+ * Features staggered animations and responsive layout to help users quickly
+ * begin conversations with suggested prompts and topics.
+ */
 
 import { motion } from 'framer-motion';
 import { type Starter } from '@/lib/starters';
 
+/** Component props interface for starter template functionality */
 interface StarterTemplatesProps {
+    /** Array of predefined starter templates */
     starters: Starter[];
+    /** Callback when user selects a starter template */
     onSelectStarter: (prompt: string) => void;
 }
 
+/**
+ * Animated Template Grid
+ * 
+ * Displays conversation starter templates in a responsive grid layout
+ * with smooth staggered entrance animations and hover interactions.
+ */
 export function StarterTemplates({ starters, onSelectStarter }: StarterTemplatesProps) {
+    // Container animation with staggered child reveals
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {
@@ -17,6 +33,7 @@ export function StarterTemplates({ starters, onSelectStarter }: StarterTemplates
         },
     };
 
+    // Individual template item animations
     const itemVariants = {
         hidden: { y: 20, opacity: 0 },
         visible: { y: 0, opacity: 1 },
@@ -36,10 +53,12 @@ export function StarterTemplates({ starters, onSelectStarter }: StarterTemplates
                     className="bg-gray-500/10 hover:bg-secondary-hover p-4 rounded-lg cursor-pointer transition-colors"
                     onClick={() => onSelectStarter(starter.prompt)}
                 >
+                    {/* Template header with icon and title (hidden on small screens) */}
                     <div className="items-center gap-3 mb-2 hidden sm:block">
                         <starter.icon className="w-5 h-5 text-primary" />
                         <h3 className="font-semibold text-foreground">{starter.title}</h3>
                     </div>
+                    {/* Template description - always visible */}
                     <p className="text-sm text-muted-foreground">{starter.description}</p>
                 </motion.div>
             ))}

@@ -1,3 +1,11 @@
+/**
+ * Onboarding Component  
+ * 
+ * Welcome interface for new users to start their first conversation.
+ * Provides model selection, file upload, and message input before
+ * transitioning to the main chat interface.
+ */
+
 import { useState, useRef, useEffect } from 'react';
 import { Send, Paperclip, FileText, X, UploadCloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,7 +17,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ModelSelector } from "@/components/ModelSelector";
 import { type Model } from "@/lib/types";
 
-// --- TYPES & CONSTANTS ---
+/** File attachment structure for onboarding */
 interface AttachedFile {
   name: string;
   content: string;
@@ -17,16 +25,25 @@ interface AttachedFile {
   type?: string;
 }
 
+/** Props for onboarding component */
 interface OnboardProps {
+  /** Callback to start chat with message and optional file */
   onStartChat: (message: string, file?: AttachedFile) => void;
+  /** Available AI models for selection */
   models: Model[];
+  /** Currently selected model ID */
   selectedModel: string;
+  /** Handler for model selection changes */
   onModelChange: (modelId: string) => void;
+  /** Provider availability status */
   providerStatus: Record<string, 'ok' | 'limit_exceeded'>;
+  /** Full context toggle state */
   isFullContext: boolean;
+  /** Handler for context toggle changes */
   onIsFullContextChange: (checked: boolean) => void;
 }
 
+/** File upload constraints */
 const MAX_FILE_SIZE_MB = 10;
 const ALLOWED_FILE_TYPES = [
   'text/plain', 'text/markdown', 'application/json', 'application/javascript', 
@@ -35,7 +52,7 @@ const ALLOWED_FILE_TYPES = [
 ];
 const ALLOWED_EXTENSIONS = ".txt, .md, .json, .js, .ts, .tsx, .css, .jpg, .jpeg, .png, .gif, .webp";
 
-// --- Animated Logo Component ---
+/** Animated logo component with gradient effects */
 const AIChatLogo = () => (
   <motion.div className="w-24 h-24 relative flex items-center justify-center mb-6">
     {/* Animated gradient ring */}

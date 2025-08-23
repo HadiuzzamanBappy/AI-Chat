@@ -1,3 +1,10 @@
+/**
+ * useToast Hook
+ * 
+ * Custom toast notification system with global state management.
+ * Provides imperative toast API with automatic cleanup and queuing.
+ */
+
 import * as React from "react"
 
 import type {
@@ -8,6 +15,7 @@ import type {
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
 
+/** Extended toast type with required ID and optional content */
 type ToasterToast = ToastProps & {
   id: string
   title?: React.ReactNode
@@ -15,6 +23,7 @@ type ToasterToast = ToastProps & {
   action?: ToastActionElement
 }
 
+/** Available toast actions for reducer */
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
   UPDATE_TOAST: "UPDATE_TOAST",
@@ -24,6 +33,7 @@ const actionTypes = {
 
 let count = 0
 
+/** Generates unique toast IDs */
 function genId() {
   count = (count + 1) % Number.MAX_SAFE_INTEGER
   return count.toString()
@@ -31,6 +41,7 @@ function genId() {
 
 type ActionType = typeof actionTypes
 
+/** Toast reducer actions */
 type Action =
   | {
       type: ActionType["ADD_TOAST"]
@@ -49,12 +60,15 @@ type Action =
       toastId?: ToasterToast["id"]
     }
 
+/** Toast state interface */
 interface State {
   toasts: ToasterToast[]
 }
 
+/** Toast timeout tracking for automatic removal */
 const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
+/** Queues toast for removal after delay */
 const addToRemoveQueue = (toastId: string) => {
   if (toastTimeouts.has(toastId)) {
     return
@@ -71,6 +85,7 @@ const addToRemoveQueue = (toastId: string) => {
   toastTimeouts.set(toastId, timeout)
 }
 
+/** Toast state reducer with action handling */
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
@@ -90,8 +105,7 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
+      // Queue toast(s) for removal with timeout
       if (toastId) {
         addToRemoveQueue(toastId)
       } else {
@@ -126,10 +140,12 @@ export const reducer = (state: State, action: Action): State => {
   }
 }
 
+/** Global toast state listeners */
 const listeners: Array<(state: State) => void> = []
 
 let memoryState: State = { toasts: [] }
 
+/** Dispatches actions to global toast state */
 function dispatch(action: Action) {
   memoryState = reducer(memoryState, action)
   listeners.forEach((listener) => {
@@ -139,6 +155,7 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">
 
+/** Creates and displays new toast notification */
 function toast({ ...props }: Toast) {
   const id = genId()
 
@@ -168,9 +185,16 @@ function toast({ ...props }: Toast) {
   }
 }
 
+/** 
+ * Toast Hook
+ * 
+ * Provides toast state and imperative API for creating notifications.
+ * Automatically subscribes to global toast state changes.
+ */
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
+  // Effect: Subscribe to global toast state changes
   React.useEffect(() => {
     listeners.push(setState)
     return () => {

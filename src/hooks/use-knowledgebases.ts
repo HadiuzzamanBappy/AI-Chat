@@ -1,11 +1,24 @@
+/**
+ * useKnowledgebases Hook
+ * 
+ * Manages knowledge base storage and activation with localStorage persistence.
+ * Combines content and files into unified context for active knowledge bases.
+ */
+
 import { useState, useEffect } from 'react';
 import { type Knowledgebase } from '@/lib/types';
 
 const STORAGE_KEY = 'app_knowledgebases';
 const ACTIVE_KNOWLEDGEBASE_KEY = 'user_knowledgebase';
 
+/**
+ * Knowledge Base Management Hook
+ * 
+ * Handles CRUD operations and active knowledge base content compilation.
+ * Automatically syncs active content to separate storage key for quick access.
+ */
 export function useKnowledgebases() {
-    // UPDATED: This now *only* loads from localStorage, or defaults to a truly empty array.
+    // Initialize from localStorage or empty array
     const [knowledgebases, setKnowledgebases] = useState<Knowledgebase[]>(() => {
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
@@ -16,6 +29,7 @@ export function useKnowledgebases() {
         }
     });
 
+    // Effect: Save knowledge bases and compile active content
     useEffect(() => {
         try {
             const activeKb = knowledgebases.find(kb => kb.isActive);
@@ -23,10 +37,10 @@ export function useKnowledgebases() {
                 ? [activeKb.content, ...activeKb.files.map(f => `\n--- File: ${f.name} ---\n${f.content}`)].join('\n')
                 : '';
 
-            // We only save user-created knowledgebases here.
+            // Save knowledge bases to primary storage
             localStorage.setItem(STORAGE_KEY, JSON.stringify(knowledgebases));
 
-            // The active key is now ONLY for user-activated KBs.
+            // Save active content to separate key for quick access
             if (combinedContent) {
                 localStorage.setItem(ACTIVE_KNOWLEDGEBASE_KEY, combinedContent);
             } else {
@@ -37,6 +51,7 @@ export function useKnowledgebases() {
         }
     }, [knowledgebases]);
 
+    /** Creates new empty knowledge base */
     const addKnowledgebase = (name: string) => {
         const newKb: Knowledgebase = {
             id: Date.now().toString(),
@@ -48,16 +63,19 @@ export function useKnowledgebases() {
         setKnowledgebases(prev => [...prev, newKb]);
     };
 
+    /** Removes knowledge base by ID */
     const deleteKnowledgebase = (id: string) => {
         setKnowledgebases(prev => prev.filter(kb => kb.id !== id));
     };
 
+    /** Updates knowledge base properties */
     const updateKnowledgebase = (id: string, updates: Partial<Knowledgebase>) => {
         setKnowledgebases(prev =>
             prev.map(kb => (kb.id === id ? { ...kb, ...updates } : kb))
         );
     };
 
+    /** Sets active knowledge base (only one can be active) */
     const setActiveKnowledgebase = (id: string | null) => {
         setKnowledgebases(prev =>
             prev.map(kb => ({ ...kb, isActive: kb.id === id }))
