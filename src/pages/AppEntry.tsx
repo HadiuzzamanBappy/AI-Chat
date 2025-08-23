@@ -6,10 +6,12 @@
  * Handles initial message/file payload from onboarding flow.
  */
 
-import { useState, useEffect } from 'react';
-import Onboard from './OnBoard';
-import Index from './Index';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { AVAILABLE_MODELS } from "@/lib/data";
+
+// Lazy load heavy components
+const Onboard = lazy(() => import('./OnBoard'));
+const Index = lazy(() => import('./Index'));
 
 /** Initial data structure for onboarding-to-chat handoff */
 interface InitialPayload {
@@ -21,6 +23,18 @@ interface InitialPayload {
     content: string; 
   } | null;
 }
+
+/**
+ * Loading fallback for lazy-loaded components
+ */
+const ComponentLoader = () => (
+  <div className="flex items-center justify-center h-screen bg-background">
+    <div className="flex flex-col items-center space-y-4">
+      <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
+      <p className="text-sm text-muted-foreground">Loading...</p>
+    </div>
+  </div>
+);
 
 /**
  * App Entry Component
@@ -83,17 +97,22 @@ const AppEntry = () => {
     );
   }
   
-  return hasConversations 
-    ? <Index initialPayloadFromOnboard={initialPayload} /> 
-    : <Onboard 
-        onStartChat={handleStartChat}
-        models={AVAILABLE_MODELS}
-        selectedModel={selectedModel}
-        onModelChange={setSelectedModel}
-        providerStatus={providerStatus}
-        isFullContext={isFullContext}
-        onIsFullContextChange={setIsFullContext}
-      />;
+  return (
+    <Suspense fallback={<ComponentLoader />}>
+      {hasConversations 
+        ? <Index initialPayloadFromOnboard={initialPayload} /> 
+        : <Onboard 
+            onStartChat={handleStartChat}
+            models={AVAILABLE_MODELS}
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+            providerStatus={providerStatus}
+            isFullContext={isFullContext}
+            onIsFullContextChange={setIsFullContext}
+          />
+      }
+    </Suspense>
+  );
 };
 
 export default AppEntry;
