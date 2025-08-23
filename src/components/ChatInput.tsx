@@ -420,18 +420,18 @@ export function ChatInput({
 
         {/* Main input area with enhanced functionality */}
         <div className="relative">
-          <div className="flex items-end gap-3 bg-sidebar-hover/30 border border-sidebar-border rounded-2xl p-4 focus-within:ring-2 focus-within:ring-yellow-400/20 focus-within:border-yellow-400/30 transition-all duration-200">
+          <div className="flex items-end gap-2 sm:gap-3 bg-sidebar-hover/30 border border-sidebar-border rounded-2xl p-3 sm:p-4 focus-within:ring-2 focus-within:ring-yellow-400/20 focus-within:border-yellow-400/30 transition-all duration-200">
             
             {/* Quick options dropdown menu */}
             <div className="relative flex-shrink-0 options-container">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-10 w-10 p-0 rounded-xl hover:bg-sidebar-active/50 transition-colors"
+                className="h-9 w-9 sm:h-10 sm:w-10 p-0 rounded-xl hover:bg-sidebar-active/50 transition-colors"
                 disabled={disabled}
                 onClick={() => setShowOptions(!showOptions)}
               >
-                <Plus className="h-5 w-5" />
+                <Plus className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               
               {/* Animated options dropdown */}
@@ -441,9 +441,9 @@ export function ChatInput({
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="absolute bottom-12 left-0 z-50 w-64 bg-sidebar-background border border-sidebar-border rounded-xl shadow-lg overflow-hidden"
+                    className="absolute bottom-12 left-0 sm:left-0 right-0 sm:right-auto z-50 w-full sm:w-64 max-w-sm bg-sidebar-background border border-sidebar-border rounded-xl shadow-lg overflow-hidden mx-2 sm:mx-0"
                   >
-                    <div className="p-2 space-y-1">
+                    <div className="p-2 space-y-1 max-h-80 overflow-y-auto">
                       {/* Quick action options */}
                       {chatOptions.map((option, index) => (
                         <Button
@@ -466,7 +466,7 @@ export function ChatInput({
                             <div className="font-medium text-sm text-sidebar-foreground">
                               {option.label}
                             </div>
-                            <div className="text-xs text-sidebar-foreground/60 mt-0.5">
+                            <div className="text-xs text-sidebar-foreground/60 mt-0.5 truncate">
                               {option.description}
                             </div>
                           </div>
@@ -490,7 +490,7 @@ export function ChatInput({
                             <div className="font-medium text-sm text-sidebar-foreground">
                               More
                             </div>
-                            <div className="text-xs text-sidebar-foreground/60 mt-0.5">
+                            <div className="text-xs text-sidebar-foreground/60 mt-0.5 truncate">
                               Additional features and tools
                             </div>
                           </div>
@@ -527,14 +527,14 @@ export function ChatInput({
               onClick={handleSend}
               disabled={disabled || (!message.trim() && !attachedFile)}
               size="sm"
-              className="h-10 w-10 p-0 rounded-xl bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 disabled:from-purple-400/50 disabled:to-purple-500/50 shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0"
+              className="h-9 w-9 sm:h-10 sm:w-10 p-0 rounded-xl bg-gradient-to-r from-purple-400 to-purple-500 hover:from-purple-500 hover:to-purple-600 disabled:from-purple-400/50 disabled:to-purple-500/50 shadow-lg hover:shadow-xl transition-all duration-200 flex-shrink-0"
             >
-              <Send className="h-5 w-5" />
+              <Send className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
           </div>
           
           {/* Keyboard shortcut hints */}
-          <p className="text-xs text-sidebar-foreground/60 mt-2 text-center">
+          <p className="text-xs text-sidebar-foreground/60 mt-2 text-center hidden sm:block">
             Press <kbd className="px-1.5 py-0.5 bg-sidebar-hover rounded text-xs font-mono">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 bg-sidebar-hover rounded text-xs font-mono">Shift+Enter</kbd> for new line
           </p>
         </div>

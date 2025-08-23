@@ -8,6 +8,7 @@
 
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { AVAILABLE_MODELS } from "@/lib/data";
+import { LoadingPage, InlineLoading } from "@/components/Loading";
 
 // Lazy load heavy components
 const Onboard = lazy(() => import('./OnBoard'));
@@ -26,14 +27,14 @@ interface InitialPayload {
 
 /**
  * Loading fallback for lazy-loaded components
+ * Uses modern LoadingPage with branding for better UX
  */
 const ComponentLoader = () => (
-  <div className="flex items-center justify-center h-screen bg-background">
-    <div className="flex flex-col items-center space-y-4">
-      <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent"></div>
-      <p className="text-sm text-muted-foreground">Loading...</p>
-    </div>
-  </div>
+  <LoadingPage 
+    title="Loading component..."
+    subtitle="Preparing your experience"
+    variant="brand"
+  />
 );
 
 /**
@@ -91,9 +92,10 @@ const AppEntry = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-background">
-        <p className="text-muted-foreground">Loading...</p>
-      </div>
+      <InlineLoading 
+        text="Checking conversations..."
+        size="lg"
+      />
     );
   }
   

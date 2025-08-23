@@ -1,13 +1,7 @@
-/**
- * Login Page Component
- * 
- * Modern, minimal authentication interface with smooth animations
- * and perfect integration with the AI Chat application theme.
- */
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/Loading";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageSquare, ArrowLeft, Eye, EyeOff, Mail, Lock } from "lucide-react";
@@ -153,24 +147,14 @@ export default function Login() {
                 </div>
 
                 {/* Sign In Button */}
-                <Button
+                <LoadingButton
                   type="submit"
-                  disabled={isLoading}
+                  isLoading={isLoading}
+                  loadingText="Signing in..."
                   className="w-full h-11 bg-primary hover:bg-primary/90 transition-colors font-medium"
                 >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
-                      />
-                      Signing in...
-                    </div>
-                  ) : (
-                    "Continue"
-                  )}
-                </Button>
+                  Continue
+                </LoadingButton>
               </form>
 
               {/* Divider */}

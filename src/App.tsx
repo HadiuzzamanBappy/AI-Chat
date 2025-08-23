@@ -12,6 +12,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LoadingPage } from "@/components/Loading";
 
 // Lazy load page components for better code splitting
 const AppEntry = lazy(() => import("./pages/AppEntry"));
@@ -24,16 +25,15 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 /**
- * Loading fallback component for lazy-loaded routes
- * Provides smooth loading experience with consistent styling
+ * Modern loading fallback component for lazy-loaded routes
+ * Uses the new LoadingPage component for consistent branding
  */
 const PageLoader = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="flex flex-col items-center space-y-4">
-      <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
-      <p className="text-sm text-muted-foreground">Loading...</p>
-    </div>
-  </div>
+  <LoadingPage 
+    title="Loading page..."
+    subtitle="Please wait while we prepare your experience"
+    variant="brand"
+  />
 );
 
 /**
