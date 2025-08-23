@@ -36,7 +36,7 @@ export function StarterTemplates({ starters, onSelectStarter }: StarterTemplates
                     className="bg-gray-500/10 hover:bg-secondary-hover p-4 rounded-lg cursor-pointer transition-colors"
                     onClick={() => onSelectStarter(starter.prompt)}
                 >
-                    <div className="flex items-center gap-3 mb-2 hidden sm:block">
+                    <div className="items-center gap-3 mb-2 hidden sm:block">
                         <starter.icon className="w-5 h-5 text-primary" />
                         <h3 className="font-semibold text-foreground">{starter.title}</h3>
                     </div>

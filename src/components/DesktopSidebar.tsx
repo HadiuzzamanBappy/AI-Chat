@@ -1,6 +1,6 @@
 // src/components/DesktopSidebar.tsx
 
-import { Plus, MessageSquare, Trash2, Sparkles, Settings } from "lucide-react";
+import { Plus, MessageSquare, Trash2, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { useNavigate } from "react-router-dom";
