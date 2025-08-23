@@ -117,7 +117,7 @@ export function DesktopSidebar({
         </Button>
       </div>
 
-      <Separator className="mx-4 bg-sidebar-border" />
+      <Separator className="mx-4 bg-sidebar-border w-100" />
 
       {/* Scrollable conversation history list */}
       <ScrollArea className="flex-1 min-w-0">
@@ -171,7 +171,7 @@ export function DesktopSidebar({
         </div>
       </ScrollArea>
 
-      <Separator className="mx-4 bg-sidebar-border" />
+      <Separator className="mx-4 bg-sidebar-border w-100" />
 
       {/* Footer with settings and theme controls */}
       <div className="p-4">

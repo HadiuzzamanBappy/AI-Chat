@@ -314,11 +314,9 @@ export function ChatInput({
             />
             <Label
               htmlFor="full-context"
-              className="text-sm font-medium text-muted-foreground cursor-pointer select-none"
-            >
-              Full Context
-              <span className="text-xs text-muted-foreground/70 ml-1">
-                ({isFullContext ? 'All messages' : 'Current message only'})
+              className="text-sm font-medium text-muted-foreground cursor-pointer select-none">
+              <span className="text-muted-foreground/70">
+                {isFullContext ? 'All messages' : 'Current message only'}
               </span>
             </Label>
           </div>
