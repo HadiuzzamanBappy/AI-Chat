@@ -23,16 +23,19 @@ export function ThemeToggle() {
 
   return (
     <Button
-      variant="secondary"
+      variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      className="h-8 w-8 p-0 rounded-full transition-colors hover:bg-sidebar-hover"
+      className="h-9 w-9 p-0 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105"
+      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
-      {isDark ? (
-        <Sun className="h-4 w-4" />
-      ) : (
-        <Moon className="h-4 w-4" />
-      )}
+      <div className="relative">
+        {isDark ? (
+          <Sun className="h-4 w-4 text-primary transition-transform duration-200 rotate-0" />
+        ) : (
+          <Moon className="h-4 w-4 text-gray-600 transition-transform duration-200 rotate-0" />
+        )}
+      </div>
       <span className="sr-only">Toggle theme</span>
     </Button>
   );

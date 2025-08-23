@@ -5,6 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, BrainCircuit, PlusCircle, Trash2, FileText, X, KeyRound, Eraser, Download, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -143,33 +146,54 @@ export default function Settings() {
   const availableProviders = apiProviders.filter(p => !visibleApis.includes(p.id));
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto p-6 space-y-8">
+    <div className="min-h-screen bg-background overflow-x-hidden">
+      <div className="max-w-4xl mx-auto p-3 sm:p-6 space-y-6 sm:space-y-8 w-full">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center space-x-2 mb-8">
-            <Link to="/" className="text-muted-foreground hover:text-foreground">
+          <div className="flex items-center space-x-2 mb-6 sm:mb-8 min-w-0">
+            <Link to="/" className="text-muted-foreground hover:text-foreground shrink-0">
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <h1 className="text-3xl font-bold text-foreground">AI Settings</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate min-w-0">Configurations</h1>
           </div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.1 } }}>
-          <Accordion type="single" collapsible className="w-full space-y-4">
-            <AccordionItem value="agents" className="border rounded-lg">
-              <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                <div className="flex items-center space-x-3 text-left">
-                  <Bot className="h-6 w-6 text-primary" />
-                  <div>
-                    <p className="font-semibold">Agent Management</p>
-                    <p className="text-sm text-muted-foreground font-normal">
-                      Create and customize AI personalities.
-                    </p>
-                  </div>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-6 pt-2">
-                <div className="space-y-4">
+          <Tabs defaultValue="agents" className="w-full overflow-hidden">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1 p-1">
+              <TabsTrigger value="agents" className="flex items-center justify-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm min-w-0">
+                <Bot className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden xs:inline truncate">Agents</span>
+                <span className="xs:hidden">AI</span>
+              </TabsTrigger>
+              <TabsTrigger value="knowledge" className="flex items-center justify-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm min-w-0">
+                <BrainCircuit className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden xs:inline truncate">Knowledge</span>
+                <span className="xs:hidden">KB</span>
+              </TabsTrigger>
+              <TabsTrigger value="api-keys" className="flex items-center justify-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm min-w-0">
+                <KeyRound className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden xs:inline truncate">API Keys</span>
+                <span className="xs:hidden">Keys</span>
+              </TabsTrigger>
+              <TabsTrigger value="data" className="flex items-center justify-center gap-1 sm:gap-2 p-2 sm:p-3 text-xs sm:text-sm min-w-0">
+                <Download className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
+                <span className="hidden xs:inline truncate">Data</span>
+                <span className="xs:hidden">Data</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="agents" className="space-y-4 mt-4 sm:mt-6">
+              <Card>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="flex items-start gap-2 text-lg sm:text-xl min-w-0">
+                    <Bot className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 mt-1" />
+                    <span className="break-words min-w-0">Agent Management</span>
+                  </CardTitle>
+                  <CardDescription className="text-sm break-words">
+                    Create and customize AI personalities for different use cases.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
                   <Button onClick={addAgent} className="w-full">
                     <PlusCircle className="h-4 w-4 mr-2" /> Add New Agent
                   </Button>
@@ -177,21 +201,21 @@ export default function Settings() {
                   {/* Nested Accordion for the list of agents */}
                   <Accordion type="single" collapsible className="w-full space-y-3">
                     {agents.map((agent) => (
-                      <AccordionItem value={agent.id} key={agent.id} className="border rounded-md bg-background/50">
-                        <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                          <div className="flex items-center justify-between w-full">
-                            <div className="text-left">
-                              <p className="font-medium">{agent.name}</p>
-                              <p className="text-xs text-muted-foreground font-normal truncate max-w-[200px] sm:max-w-xs">
+                      <AccordionItem value={agent.id} key={agent.id} className="border rounded-md bg-background/50 overflow-hidden">
+                        <AccordionTrigger className="px-3 sm:px-4 py-3 hover:no-underline">
+                          <div className="flex items-center justify-between w-full min-w-0 gap-2">
+                            <div className="text-left min-w-0 flex-1">
+                              <p className="font-medium break-words text-sm sm:text-base">{agent.name}</p>
+                              <p className="text-xs text-muted-foreground font-normal break-words line-clamp-2">
                                 {agent.description}
                               </p>
                             </div>
-                            <Button variant="ghost" size="icon" className="mr-2 shrink-0" onClick={(e) => { e.stopPropagation(); deleteAgent(agent.id); }}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={(e) => { e.stopPropagation(); deleteAgent(agent.id); }}>
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
                         </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4 space-y-4">
+                        <AccordionContent className="px-3 sm:px-4 pb-4 space-y-4">
                           <div>
                             <Label>Agent Name</Label>
                             <Input
@@ -224,29 +248,29 @@ export default function Settings() {
                       </AccordionItem>
                     ))}
                   </Accordion>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="knowledge" className="border rounded-lg">
-              <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                <div className="flex justify-between items-center w-full">
-                  <div className="flex items-center space-x-3 text-left">
-                    <BrainCircuit className="h-6 w-6 text-primary" />
-                    <div>
-                      <p className="font-semibold">Knowledgebases</p>
-                      <p className="text-sm text-muted-foreground font-normal">Provide the AI with persistent context.</p>
-                    </div>
+            <TabsContent value="knowledge" className="space-y-4 mt-4 sm:mt-6">
+              <Card>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="flex items-start gap-2 text-lg sm:text-xl min-w-0">
+                    <BrainCircuit className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 mt-1" />
+                    <span className="break-words min-w-0">Knowledgebases</span>
+                  </CardTitle>
+                  <CardDescription className="text-sm break-words">
+                    Provide the AI with persistent context and information.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-end mb-4 gap-3 sm:gap-0">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="feed-default-kb" className="text-sm font-medium">Owner Context</Label>
+                    <Switch id="feed-default-kb" checked={feedDefaultKb} onCheckedChange={setFeedDefaultKb} />
                   </div>
                 </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-6 pt-2 space-y-4">
-                <div className="flex items-center space-x-2 mr-4 justify-end" onClick={(e) => e.stopPropagation()}>
-                  <Label htmlFor="feed-default-kb" className="text-sm font-normal text-muted-foreground">Owner Context</Label>
-                  <Switch id="feed-default-kb" checked={feedDefaultKb} onCheckedChange={setFeedDefaultKb} />
-                </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <Input
                     placeholder="New knowledgebase name..."
                     value={newKbName}
@@ -257,6 +281,7 @@ export default function Settings() {
                         setNewKbName('');
                       }
                     }}
+                    className="flex-1"
                   />
                   <Button
                     onClick={() => {
@@ -266,6 +291,7 @@ export default function Settings() {
                       }
                     }}
                     disabled={!newKbName.trim()}
+                    className="w-full sm:w-auto"
                   >
                     <PlusCircle className="h-4 w-4 mr-2" /> Add
                   </Button>
@@ -275,13 +301,25 @@ export default function Settings() {
                     const wordCount = kb.content.split(/\s+/).filter(Boolean).length;
                     return (
                       <motion.div key={kb.id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                        <Card className="border bg-gray-500/10 shadow-sm">
-                          <CardHeader className="flex flex-row items-start justify-between">
-                            <div>
-                              <CardTitle>{kb.name}</CardTitle>
-                              <CardDescription>{kb.isActive ? "Active" : "Inactive"}</CardDescription>
+                        <Card className="border bg-gray-500/10 shadow-sm overflow-hidden">
+                          <CardHeader className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-0 p-4 sm:p-6">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1 flex-wrap min-w-0">
+                                <CardTitle className="text-base sm:text-lg break-words min-w-0">{kb.name}</CardTitle>
+                                <Badge variant={kb.isActive ? "default" : "secondary"} className="text-xs shrink-0">
+                                  {kb.isActive ? "Active" : "Inactive"}
+                                </Badge>
+                              </div>
+                              <CardDescription className="flex items-center gap-2 flex-wrap">
+                                <Badge variant="outline" className="text-xs shrink-0">
+                                  {wordCount} words
+                                </Badge>
+                                <Badge variant="outline" className="text-xs shrink-0">
+                                  {kb.files.length} files
+                                </Badge>
+                              </CardDescription>
                             </div>
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 shrink-0">
                               <Switch
                                 checked={kb.isActive}
                                 onCheckedChange={(checked) => setActiveKnowledgebase(checked ? kb.id : null)}
@@ -291,35 +329,46 @@ export default function Settings() {
                               </Button>
                             </div>
                           </CardHeader>
-                          <CardContent className="space-y-4">
+                          <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
                             <div>
-                              <Label>Custom Instructions (Text)</Label>
+                              <Label className="text-sm">Custom Instructions (Text)</Label>
                               <Textarea
                                 placeholder="Tell the AI about your preferences..."
                                 value={kb.content}
                                 onChange={(e) => updateKnowledgebase(kb.id, { content: e.target.value })}
-                                className="mt-2 min-h-[120px]"
+                                className="mt-2 min-h-[100px] sm:min-h-[120px] text-sm"
                               />
-                              <p className={`text-xs mt-2 ${wordCount > MAX_WORDS ? 'text-destructive' : 'text-muted-foreground'}`}>
-                                {wordCount} / {MAX_WORDS} words
-                              </p>
+                              <div className="space-y-2 mt-3">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className={wordCount > MAX_WORDS ? 'text-destructive' : 'text-muted-foreground'}>
+                                    {wordCount} / {MAX_WORDS} words
+                                  </span>
+                                  <span className={`${wordCount > MAX_WORDS ? 'text-destructive' : wordCount > MAX_WORDS * 0.8 ? 'text-purple-600' : 'text-muted-foreground'}`}>
+                                    {Math.round((wordCount / MAX_WORDS) * 100)}%
+                                  </span>
+                                </div>
+                                <Progress 
+                                  value={(wordCount / MAX_WORDS) * 100} 
+                                  className={`w-full h-2 ${wordCount > MAX_WORDS ? 'text-destructive' : ''}`}
+                                />
+                              </div>
                             </div>
                             <div>
-                              <Label>Attached Files</Label>
+                              <Label className="text-sm">Attached Files</Label>
                               <div className="mt-2 space-y-2">
                                 {kb.files.map(file => (
                                   <div key={file.name} className="flex items-center justify-between bg-background p-2 rounded-md">
-                                    <div className="flex items-center gap-2">
-                                      <FileText className="h-4 w-4" />
+                                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                                      <FileText className="h-4 w-4 shrink-0" />
                                       <span className="text-sm truncate">{file.name}</span>
                                     </div>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFile(kb.id, file.name)}>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0 ml-2" onClick={() => removeFile(kb.id, file.name)}>
                                       <X className="h-4 w-4" />
                                     </Button>
                                   </div>
                                 ))}
                               </div>
-                              <Button variant="outline" className="mt-2 w-full" onClick={() => fileInputRefs.current.get(kb.id)?.click()}>
+                              <Button variant="outline" className="mt-2 w-full text-xs sm:text-sm" onClick={() => fileInputRefs.current.get(kb.id)?.click()}>
                                 <PlusCircle className="h-4 w-4 mr-2" /> Add File
                               </Button>
                               <Input
@@ -344,92 +393,113 @@ export default function Settings() {
                     );
                   })}
                 </AnimatePresence>
-              </AccordionContent>
-            </AccordionItem>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-            <AccordionItem value="api-keys" className="border rounded-lg">
-              <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                <div className="flex justify-between items-center w-full">
-                  <div className="flex items-center space-x-3 text-left">
-                    <KeyRound className="h-6 w-6 text-primary" />
-                    <div>
-                      <p className="font-semibold">API Key Management</p>
-                      <p className="text-sm text-muted-foreground font-normal">Store your API keys in local browser storage.</p>
-                    </div>
-                  </div>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-6 pt-2 space-y-4">
-                <div className="flex flex-col gap-2 items-end w-full">
-                  {addedProviders.map((provider) => (
-                    <div key={provider.id} className="w-full">
-                      <div className="flex justify-between items-center mb-1">
-                        <Label htmlFor={`${provider.id}-key`}>{provider.name} API Key</Label>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
-                          provider.setKey('');
-                          localStorage.removeItem(provider.apiKeyEnvVar);
-                          setVisibleApis(prev => prev.filter(id => id !== provider.id));
-                          toast.info(`${provider.name} API Key removed.`);
-                        }}>
-                          <Trash2 className="h-4 w-4 text-muted-foreground" />
-                        </Button>
-                      </div>
-                      <Input id={`${provider.id}-key`} type="password" value={provider.key} onChange={(e) => provider.setKey(e.target.value)} placeholder="Enter your key..." />
-                    </div>
-                  ))}
-                  {addedProviders.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">No API keys added. Click "Add Key" to start.</p>
-                  )}
-                  {addedProviders.length > 0 && (
-                    <Button onClick={handleSaveApiKeys}>Save All Keys</Button>
-                  )}
-                </div>
-
-                {availableProviders.length > 0 && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="w-full bg-secondary" onClick={(e) => e.stopPropagation()}>
-                        <PlusCircle className="h-4 w-4 mr-2" /> Add Key
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {availableProviders.map((provider) => (
-                        <DropdownMenuItem key={provider.id} onSelect={() => setVisibleApis(prev => [...prev, provider.id])}>
-                          {provider.name}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0, transition: { delay: 0.4 } }}>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-3">
-                <Trash2 className="h-6 w-6 text-primary" />
-                <div>
-                  <p className="font-semibold">Data Management</p>
-                  <CardDescription>
-                    Manage your conversation history.
+            <TabsContent value="api-keys" className="space-y-4 mt-4 sm:mt-6">
+              <Card>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="flex items-start gap-2 text-lg sm:text-xl min-w-0">
+                    <KeyRound className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 mt-1" />
+                    <span className="break-words min-w-0">API Key Management</span>
+                  </CardTitle>
+                  <CardDescription className="text-sm break-words">
+                    Store your API keys in local browser storage.
                   </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="flex items-center gap-4">
-              <Button variant="outline" onClick={handleExportHistory}>
-                <Download className="h-4 w-4 mr-2" />
-                Export History
-              </Button>
-              <Button variant="destructive" onClick={handleClearHistory}>
-                <Eraser className="h-4 w-4 mr-2 text-wrap" />
-                Clear History
-              </Button>
-            </CardContent>
-          </Card>
+                </CardHeader>
+                <CardContent className="space-y-4 p-4 sm:p-6 pt-0 sm:pt-0">
+                  <div className="flex flex-col gap-3 sm:gap-4 items-center w-full">
+                    {addedProviders.map((provider) => (
+                      <div key={provider.id} className="w-full">
+                        <div className="flex justify-between items-center mb-2">
+                          <Label htmlFor={`${provider.id}-key`} className="text-sm font-medium">{provider.name} API Key</Label>
+                          <Button variant="ghost" size="icon" className="h-6 w-6 sm:h-7 sm:w-7" onClick={() => {
+                            provider.setKey('');
+                            localStorage.removeItem(provider.apiKeyEnvVar);
+                            setVisibleApis(prev => prev.filter(id => id !== provider.id));
+                            toast.info(`${provider.name} API Key removed.`);
+                          }}>
+                            <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground" />
+                          </Button>
+                        </div>
+                        <Input 
+                          id={`${provider.id}-key`} 
+                          type="password" 
+                          value={provider.key} 
+                          onChange={(e) => provider.setKey(e.target.value)} 
+                          placeholder="Enter your key..." 
+                          className="text-sm"
+                        />
+                      </div>
+                    ))}
+                    {addedProviders.length === 0 && (
+                      <p className="text-xs sm:text-sm text-muted-foreground text-center py-6 sm:py-8">No API keys added. Click "Add Key" to start.</p>
+                    )}
+                    {addedProviders.length > 0 && (
+                      <div className="flex justify-end w-full">
+                        <Button onClick={handleSaveApiKeys} className="w-full sm:w-auto text-sm">Save All Keys</Button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4">
+                    {availableProviders.length > 0 ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" className="w-full bg-secondary text-sm">
+                            <PlusCircle className="h-4 w-4 mr-2" /> Add API Key ({availableProviders.length} available)
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-64" align="end" side="bottom" sideOffset={8}>
+                          {availableProviders.map((provider) => (
+                            <DropdownMenuItem 
+                              key={provider.id} 
+                              onClick={() => setVisibleApis(prev => [...prev, provider.id])}
+                              className="text-sm cursor-pointer hover:bg-accent focus:bg-accent"
+                            >
+                              <div className="flex items-center gap-2">
+                                <KeyRound className="h-4 w-4" />
+                                {provider.name}
+                              </div>
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : (
+                      <p className="text-xs text-muted-foreground text-center py-2">
+                        All available providers have been added.
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="data" className="space-y-4 mt-4 sm:mt-6">
+              <Card>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="flex items-start gap-2 text-lg sm:text-xl min-w-0">
+                    <Download className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 mt-1" />
+                    <span className="break-words min-w-0">Data Management</span>
+                  </CardTitle>
+                  <CardDescription className="text-sm break-words">
+                    Manage your conversation history and exported data.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 p-4 sm:p-6 pt-0 sm:pt-0">
+                  <Button variant="outline" onClick={handleExportHistory} className="text-sm">
+                    <Download className="h-4 w-4 mr-2" />
+                    Export History
+                  </Button>
+                  <Button variant="destructive" onClick={handleClearHistory} className="text-sm">
+                    <Eraser className="h-4 w-4 mr-2" />
+                    Clear History
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </motion.div>
       </div>
     </div>

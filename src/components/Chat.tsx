@@ -26,19 +26,41 @@ interface ChatProps {
   onSendMessage: (message: string) => void;
   onDeleteMessage: (messageId: string) => void;
   onRerunMessage: (messageId: string) => void;
+  onEditMessage?: (messageId: string, newContent: string) => void;
   activeConversation: Conversation | undefined;
 }
 
-export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessage, onRerunMessage, activeConversation }: ChatProps) {
+export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessage, onRerunMessage, onEditMessage, activeConversation }: ChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const isEditingRef = useRef(false);
   
   const [animatingMessageId, setAnimatingMessageId] = useState<string | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
 
   // --- THE FIX: Use our new custom hook to reliably get the previous typing state ---
   const prevIsTyping = usePrevious(isTyping);
 
   const activeAgent = AGENTS.find(agent => agent.id === activeConversation?.agentId) || AGENTS[0];
+
+  const handleEditStateChange = (messageId: string, isEditing: boolean) => {
+    isEditingRef.current = isEditing;
+    
+    if (isEditing) {
+      // Completely disable auto-scroll when editing starts
+      setAutoScrollEnabled(false);
+      setEditingMessageId(messageId);
+    } else {
+      // Keep auto-scroll disabled for longer after edit ends
+      setTimeout(() => {
+        setEditingMessageId(null);
+        isEditingRef.current = false;
+        // Re-enable auto-scroll only after a safe delay
+        setTimeout(() => setAutoScrollEnabled(true), 100);
+      }, 500); // Longer delay before clearing edit state
+    }
+  };
 
   // This effect now correctly detects the transition to trigger the animation.
   useEffect(() => {
@@ -54,16 +76,36 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
 
   // This effect for auto-scrolling is correct and remains unchanged.
   useEffect(() => {
+    // Don't auto-scroll if auto-scroll is disabled or if editing
+    if (!autoScrollEnabled || isEditingRef.current || editingMessageId) return;
+    
     const scrollToBottom = () => {
+      // Triple check before scrolling
+      if (!autoScrollEnabled || isEditingRef.current) return;
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
-    scrollToBottom();
+    
+    // Small delay to ensure edit state is properly set
+    const timeoutId = setTimeout(scrollToBottom, 10);
+    
     const container = chatContainerRef.current;
-    if (!container) return;
-    const observer = new ResizeObserver(scrollToBottom);
+    if (!container) {
+      clearTimeout(timeoutId);
+      return;
+    }
+    
+    const observer = new ResizeObserver(() => {
+      if (autoScrollEnabled && !isEditingRef.current) {
+        scrollToBottom();
+      }
+    });
     observer.observe(container);
-    return () => observer.disconnect();
-  }, [messages, isTyping]);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      observer.disconnect();
+    };
+  }, [messages, isTyping, editingMessageId, autoScrollEnabled]);
 
 
   const TypingIndicator = () => (
@@ -121,8 +163,13 @@ export function Chat({ messages, isTyping = false, onSendMessage, onDeleteMessag
                 {...message}
                 onDelete={onDeleteMessage}
                 onRerun={onRerunMessage}
+                onEdit={onEditMessage}
+                onEditStateChange={handleEditStateChange}
                 shouldAnimate={message.id === animatingMessageId}
                 onAnimationComplete={() => setAnimatingMessageId(null)}
+                isSystemTyping={isTyping}
+                attachedFile={message.attachedFile}
+                imageAnalysis={message.imageAnalysis}
               />
             ))}
             {isTyping && <TypingIndicator />}

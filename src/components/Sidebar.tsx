@@ -25,29 +25,53 @@ export function Sidebar({
   ...props // Pass the rest of the props down
 }: SidebarProps) {
   const sidebarVariants = {
-    open: { x: 0 },
-    closed: { x: "-100%" }
+    open: { 
+      x: 0,
+    },
+    closed: { 
+      x: "-100%",
+    }
+  };
+
+  const backdropVariants = {
+    open: { 
+      opacity: 1,
+    },
+    closed: { 
+      opacity: 0,
+    }
   };
 
   if (isMobile) {
     return (
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {isOpen && (
           <>
+            {/* Modern Backdrop with Blur */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+              variants={backdropVariants}
+              initial="closed"
+              animate="open"
+              exit="closed"
+              transition={{ 
+                duration: 0.3,
+                ease: [0.4, 0.0, 0.2, 1]
+              }}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
               onClick={onToggle}
             />
+            {/* Modern Sidebar with Enhanced Shadow */}
             <motion.div
               variants={sidebarVariants}
               initial="closed"
               animate="open"
               exit="closed"
-              transition={{ type: "tween", duration: 0.3 }}
-              className="fixed left-0 top-0 bottom-0 w-80 z-50 md:hidden"
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 30
+              }}
+              className="fixed left-0 top-0 bottom-0 w-80 z-50 md:hidden shadow-2xl shadow-black/20 backdrop-blur-xl"
             >
               {/* Pass all props down to the DesktopSidebar */}
               <DesktopSidebar {...props} />

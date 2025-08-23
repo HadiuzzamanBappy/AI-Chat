@@ -57,12 +57,6 @@ export const AVAILABLE_MODELS: Model[] = [
     capabilities: ['fast', 'code', 'multilingual']
   },
   {
-    id: "google/gemini-flash-1.5",
-    name: "Gemini 1.5 Flash",
-    providerId: "openrouter",
-    capabilities: ['fast', 'creative', 'multilingual']
-  },
-  {
     id: "openai/gpt-oss-20b:free",
     name: "GPT-OSS 20B",
     providerId: "openrouter",
@@ -82,13 +76,25 @@ export const AVAILABLE_MODELS: Model[] = [
     providerId: "openrouter",
     capabilities: ['code', 'creative', 'multilingual']
   },
+  {
+    id: "google/gemini-flash-1.5",
+    name: "Gemini 1.5 Flash",
+    providerId: "openrouter",
+    capabilities: ['fast', 'creative', 'multilingual', 'vision', 'files']
+  },
 
   // --- OpenAI Models ---
   {
     id: "gpt-4o",
     name: "GPT-4o",
     providerId: "openai",
-    capabilities: ['code', 'creative', 'powerful', 'multilingual']
+    capabilities: ['code', 'creative', 'powerful', 'multilingual', 'vision', 'files']
+  },
+  {
+    id: "gpt-4o-mini",
+    name: "GPT-4o Mini",
+    providerId: "openai", 
+    capabilities: ['fast', 'code', 'creative', 'vision', 'files']
   },
 
   // --- Auto-Selection Models ---
@@ -96,6 +102,6 @@ export const AVAILABLE_MODELS: Model[] = [
     id: "openrouter/auto",
     name: "Auto (Smart Select)",
     providerId: "openrouter",
-    capabilities: [] // No capabilities for auto
+    capabilities: ['vision', 'files'] // Auto should support files
   },
 ];

@@ -11,7 +11,7 @@ export interface Model {
   id: string;
   name: string;
   providerId: string;
-  capabilities: ('code' | 'fast' | 'creative' | 'powerful' | 'chat' | 'multilingual')[]; // NEW
+  capabilities: ('code' | 'fast' | 'creative' | 'powerful' | 'chat' | 'multilingual' | 'vision' | 'files')[]; // Added vision & files
   apiUrlOverride?: string;
 }
 
@@ -48,6 +48,13 @@ export interface ChatMessage {
   timestamp: Date;
   modelName?: string; 
   agentName?: string; // NEW: Name of the agent used for this message
+  attachedFile?: {
+    name: string;
+    content: string;
+    size?: number;
+    type?: string;
+  };
+  imageAnalysis?: string; // NEW: Stores image analysis text separately
 }
 
 // NEW: Define the Agent interface

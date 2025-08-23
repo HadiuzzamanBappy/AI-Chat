@@ -1,10 +1,10 @@
 // src/components/DesktopSidebar.tsx
 
-import { Plus, User, MessageSquare, Trash2 } from "lucide-react";
+import { Plus, MessageSquare, Trash2, Sparkles, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { useNavigate } from "react-router-dom";
-import { type Conversation, type Agent } from "@/lib/types"; // Import Agent
+import { type Conversation, type Agent } from "@/lib/types";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -48,9 +48,10 @@ export function DesktopSidebar({
 
   const ListItem = ({ children, onClick, isActive = false }: ListItemProps) => (
     <div
-      className={`group flex items-center justify-between rounded-md px-3 py-2 text-sm font-medium cursor-pointer transition-colors ${
-        isActive ? 'bg-sidebar-active text-sidebar-active-foreground' : 'hover:bg-sidebar-hover text-sidebar-foreground'
-      }`}
+      className={`group flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium cursor-pointer transition-all duration-200 ${isActive
+          ? 'bg-sidebar-active text-sidebar-active-foreground border border-primary/20'
+          : 'hover:bg-sidebar-hover text-sidebar-foreground border border-transparent hover:border-sidebar-border'
+        }`}
       onClick={onClick}
     >
       {children}
@@ -58,51 +59,67 @@ export function DesktopSidebar({
   );
 
   return (
-    <div className="flex flex-col h-full bg-sidebar-background border-r border-sidebar-border">
-      <div className="p-4">
-        <h1 className="text-xl font-semibold text-foreground">Open LLM</h1>
-        <p className="text-sm text-muted-foreground">Personal workspace</p>
+    <div className="flex flex-col h-full w-80 min-w-80 max-w-80 bg-sidebar-background border-r border-sidebar-border shadow-sm">
+      {/* Header */}
+      <div className="p-6 border-b border-sidebar-border">
+        <h1 className="text-lg font-bold text-sidebar-foreground truncate">Open LLM Chat</h1>
+        <p className="text-sm text-muted-foreground truncate">Your intelligent assistant</p>
       </div>
 
-      <div className="p-4 space-y-2">
-        <div className="space-y-1">
-          <label className="px-1 text-xs font-semibold text-muted-foreground">ACTIVE AGENT</label>
+      {/* Agent Selection and New Chat */}
+      <div className="p-4 space-y-4">
+        <div className="space-y-2">
+          <label className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Active Agent
+          </label>
           <Select value={selectedAgentId} onValueChange={onAgentChange}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full border-sidebar-border bg-sidebar-background hover:bg-sidebar-hover rounded-lg">
               <SelectValue asChild>
-                <div className="flex items-center gap-2">
-                  {activeAgent && <activeAgent.icon className="h-4 w-4" />}
-                  <span>{activeAgent ? activeAgent.name : "Select Agent"}</span>
+                <div className="flex items-center gap-3 min-w-0">
+                  {activeAgent && (
+                    <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-purple-500 rounded-md flex items-center justify-center flex-shrink-0">
+                      <activeAgent.icon className="h-3 w-3 text-white" />
+                    </div>
+                  )}
+                  <span className="font-medium truncate">{activeAgent ? activeAgent.name : "Select Agent"}</span>
                 </div>
               </SelectValue>
             </SelectTrigger>
-            <SelectContent className="bg-secondary">
+            <SelectContent className="bg-sidebar-background border-sidebar-border">
               {agents.map((agent) => (
-                <SelectItem key={agent.id} value={agent.id}>
-                  <div className="flex items-center gap-2">
-                    <agent.icon className="h-4 w-4" />
-                    <span>{agent.name}</span>
+                <SelectItem key={agent.id} value={agent.id} className="focus:bg-primary/10">
+                  <div className="flex items-center gap-3 min-w-0 w-full">
+                    <div className="w-6 h-6 bg-gradient-to-br from-purple-400 to-purple-500 rounded-md flex items-center justify-center flex-shrink-0">
+                      <agent.icon className="h-3 w-3 text-white" />
+                    </div>
+                    <span className="font-medium truncate">{agent.name}</span>
                   </div>
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-        <Button onClick={onNewChat} className="w-full justify-start bg-primary text-primary-foreground hover:bg-primary-hover">
-          <Plus className="h-4 w-4 mr-2" />
+
+        <Button
+          onClick={onNewChat}
+          className="w-full justify-start bg-primary hover:bg-primary-hover text-primary-foreground border-0 rounded-lg h-11 font-medium shadow-md hover:shadow-lg transition-all duration-200"
+        >
+          <Plus className="h-4 w-4 mr-3" />
           New Chat
         </Button>
       </div>
 
-      <Separator className="mx-4" />
+      <Separator className="mx-4 bg-sidebar-border" />
 
-      <ScrollArea className="flex-1">
+      {/* Conversation History */}
+      <ScrollArea className="flex-1 min-w-0">
         <div className="p-4">
-          <h2 className="mb-2 px-3 text-xs font-semibold text-muted-foreground tracking-wider uppercase">History</h2>
-          <div className="space-y-1">
+          <h2 className="mb-4 px-2 text-xs font-semibold text-muted-foreground tracking-wide uppercase truncate">
+            Recent Chats
+          </h2>
+          <div className="space-y-2">
             {conversations.length > 0 ? (
               conversations.map((conversation) => {
-                // --- THE FIX: Use the `agents` prop from state, not the static `AGENTS` import ---
                 const agent = agents.find(a => a.id === conversation.agentId) || { icon: MessageSquare };
                 return (
                   <ListItem
@@ -110,42 +127,54 @@ export function DesktopSidebar({
                     onClick={() => onSelectConversation(conversation.id)}
                     isActive={activeConversationId === conversation.id}
                   >
-                    <div className="flex items-center gap-3 truncate">
-                      <agent.icon className="h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">{conversation.title}</span>
+                    <div className="flex items-start gap-3 min-w-0 flex-1">
+                      <div className="w-6 h-6 bg-muted rounded-md flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <agent.icon className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-sm font-medium text-sidebar-foreground block leading-relaxed line-clamp-2">
+                          {conversation.title}
+                        </span>
+                      </div>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                      className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 hover:bg-red-50 dark:hover:bg-red-900/20 mt-0.5"
                       onClick={(e) => { e.stopPropagation(); onDeleteConversation(conversation.id); }}
                       aria-label="Delete conversation"
                     >
-                      <Trash2 className="h-4 w-4 text-muted-foreground" />
+                      <Trash2 className="h-3.5 w-3.5 text-red-500 dark:text-red-400" />
                     </Button>
                   </ListItem>
                 );
               })
             ) : (
-              <div className="px-3 py-2 text-sm text-muted-foreground">No chat history yet.</div>
+              <div className="px-3 py-8 text-center">
+                <MessageSquare className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No conversations yet</p>
+                <p className="text-xs text-muted-foreground/70 mt-1">Start a new chat to begin</p>
+              </div>
             )}
           </div>
         </div>
       </ScrollArea>
 
-      <Separator />
+      <Separator className="mx-4 bg-sidebar-border" />
 
-      <div className="p-4 flex items-center justify-between gap-2">
-        <Button variant="ghost" className="flex-1 justify-start text-left h-auto py-2" onClick={() => navigate('/settings')}>
-          <div className="flex items-center gap-3">
-            <User className="h-5 w-5 rounded-full" />
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-foreground">Hadiuzzaman Bappy</span>
-              <span className="text-xs text-muted-foreground">Settings & Knowledge</span>
-            </div>
-          </div>
-        </Button>
-        <ThemeToggle />
+      {/* Footer - Theme Toggle and Settings */}
+      <div className="p-4">
+        <div className="flex items-center justify-between gap-3">
+          <Button
+            variant="ghost"
+            className="flex items-center gap-2 px-3 py-2 hover:bg-sidebar-hover rounded-lg text-sidebar-foreground transition-all duration-200"
+            onClick={() => navigate('/settings')}
+          >
+            <Settings className="h-4 w-4" />
+            <span className="text-sm font-medium">Settings</span>
+          </Button>
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   );
